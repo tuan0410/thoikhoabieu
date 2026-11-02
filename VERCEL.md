@@ -4,7 +4,7 @@
 
 ## 1. T?o database
 
-??ng nh?p https://app.turso.tech v? t?o m?t database. Sao ch?p Database URL v? t?o database auth token. Kh?ng g?i token qua chat, kh?ng ??a v?o frontend ho?c GitHub. Xem https://docs.turso.tech/sdk/ts/quickstart.
+??ng nh?p https://app.turso.tech v? t?o m?t database d?ng engine **libSQL** (b?n n?y ch?a d?ng engine Turso m?i). N?u d?ng CLI: `turso db create lichhoc` kh?ng th?m `--tursodb`. Sao ch?p Database URL v? t?o database auth token. Kh?ng g?i token qua chat, kh?ng ??a v?o frontend ho?c GitHub. Xem https://docs.turso.tech/sdk/ts/quickstart.
 
 ## 2. C?u h?nh Vercel
 
