@@ -37,3 +37,7 @@ Khi đưa lên HTTPS, cập nhật origin của tiện ích theo SCHOOL_SYNC.md;
 - Service worker và các file giao diện được máy chủ trả về với `Cache-Control: no-cache` để trình duyệt kiểm tra cập nhật.
 
 Đã kiểm thử bằng mã và HTTP local; chưa thử cài thực tế trên thiết bị Android/iPhone vì công cụ trình duyệt của môi trường hiện không có kết nối. Chưa có tên miền HTTPS được triển khai trong phiên này.
+
+## Bản native Android/iPhone
+
+Đã thêm mã app Capacitor và bộ đọc tích hợp, xem [mobile/README.md](mobile/README.md). Bản PWA cài từ trình duyệt vẫn khác bản native. Bản native cần build, ký và kiểm chứng đăng nhập trường; chưa có gói phát hành iPhone.

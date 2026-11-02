@@ -1,10 +1,10 @@
 'use strict';
-const CACHE = 'lichhoc-shell-v2';
+const CACHE = 'lichhoc-shell-v3';
 // Only public assets belong here. Never cache API responses or account data.
 const SHELL = [
   '/', '/index.html', '/offline.html', '/style.css', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/apple-touch-icon.png',
-  '/js/data.js', '/js/utils.js', '/js/state.js', '/js/api.js', '/js/pwa.js', '/js/sync.js',
+  '/js/data.js', '/js/utils.js', '/js/state.js', '/js/api.js', '/js/pwa.js', '/js/mobile.js', '/js/sync.js',
   '/js/schedule.js', '/js/components.js', '/js/menu.js', '/js/theme.js', '/js/router.js',
   '/js/events.js', '/js/auth.js', '/js/app.js', '/js/views/overview.js',
   '/js/views/timetable.js', '/js/views/courses.js', '/js/views/tasks.js',

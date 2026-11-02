@@ -12,3 +12,9 @@ Thumbs.db
 
 # Generated Vercel static output
 public/
+.npm-cache/
+mobile/www/
+mobile/android/
+mobile/ios/
+mobile/portal/android/src/main/assets/
+mobile/portal/ios/Sources/LichHocPortal/Resources/

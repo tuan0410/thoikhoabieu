@@ -30,6 +30,7 @@
       lastSeen = responses[1].lastSync?.importedAt || null;
     },
     reset: function () {
+      LH.mobile?.reset();
       waiting = false; syncError = ''; lastSeen = null; LH.syncStatus = { lastSync: null, pendingUntil: null };
     },
     refresh: async function () {
@@ -53,6 +54,7 @@
       finally { polling = false; }
     },
     init: function () {
+      LH.mobile?.init(function () { return schoolId; });
       document.addEventListener('change', function (event) {
         if (event.target.id !== 'syncSchool') return;
         schoolId = event.target.value;
@@ -79,6 +81,7 @@
             var requestedSchoolId = selected.id;
             action.disabled = true;
             LH.render();
+            if (LH.mobile?.available()) { await LH.mobile.connect(selected); return; }
             var extension = await bridge('PING');
             var minimum = location.origin === 'https://schedule-information.vercel.app' ? '0.4.2' : requestedSchoolId === 'fpt-qn' ? '0.4.0' : '0.1.0';
             if (!versionAtLeast(extension?.version, minimum)) throw new Error('Hãy cài tiện ích ' + minimum + ' trở lên, tải lại tiện ích rồi tải lại trang này.');
@@ -111,14 +114,14 @@
         return '<option value="' + LH.esc(s.id) + '"' + (s.id === schoolId ? ' selected' : '') + '>' + LH.esc(s.name) + '</option>';
       }).join('');
       return '<section class="intro"><span class="eyebrow">Kết nối trường của bạn</span><h2>Đồng bộ lịch học</h2><p class="muted">Chọn trường, đăng nhập tại cổng sinh viên và xem trước lịch trước khi nhập vào tài khoản này.</p></section>' +
-        '<section class="card"><h2>Dùng trên điện thoại</h2><p>Bản demo nhập lịch trường bằng tiện ích Chrome/Edge trên máy tính. Sau khi nhập, đăng nhập cùng tài khoản trên điện thoại và bấm Kiểm tra lại để xem lịch đã lưu.</p><p class="muted">Tiện ích hiện tại không chạy trong ứng dụng PWA trên điện thoại. Để máy tính và điện thoại dùng chung dữ liệu, cả hai cần truy cập cùng địa chỉ máy chủ.</p></section>' +
+        (LH.mobile ? LH.mobile.view(schoolId) : '') +
         '<section class="card sync-card"><div class="card-head"><h2>Chọn trường</h2><span class="pill">Demo · UTH & FPT</span></div><div class="field"><label for="syncSchool">Bạn là sinh viên trường nào?</label><select id="syncSchool">' + options + '</select></div>' +
         (syncError ? '<p class="note" role="alert">' + LH.esc(syncError) + '</p>' : '') +
         (selected?.enabled ? '<p class="muted">Cổng sinh viên: <a href="' + selected.portalUrl + '" target="_blank" rel="noopener noreferrer">' + LH.esc(selected.portalUrl) + '</a></p>' + (selected.id === 'fpt-qn' ? '<p class="note">Trên FAP, chọn FU–Quy Nhơn rồi mở Weekly timetable. Trong bảng tiện ích 0.4.3, chọn thứ hai đầu kỳ và chủ nhật cuối kỳ, bấm Đọc cả học kỳ. Chỉ gửi sau khi đã đọc đủ các tuần.</p>' : '') + '<div class="row-actions"><button class="btn" data-sync-action="connect"' + (waiting ? ' disabled' : '') + '>' + (waiting ? 'Đang kết nối…' : 'Kết nối và mở lịch ' + LH.esc(label)) + '</button>' + (active ? '<button class="text-btn" data-sync-action="cancel">Hủy phiên</button>' : '') + '</div>' : '<p class="muted">Trường này chưa có bộ kết nối trong bản demo. Bạn vẫn có thể <a href="#quan-ly" data-go="quan-ly">tự nhập lịch</a>. Các trường khác sẽ được bổ sung tại đây.</p>') + '</section>' +
         '<section class="card"><div class="card-head"><h2>Trạng thái đồng bộ</h2><button class="text-btn" data-sync-action="refresh">Kiểm tra lại</button></div>' +
         (active ? '<p class="pill warn">Đang chờ lịch từ ' + LH.esc(pendingLabel) + ' · phiên có hiệu lực 10 phút</p><p>Trên tab trường vừa mở, tự đăng nhập rồi vào lịch tuần. Trong bảng Lịch Học, chọn Đọc lịch tuần → kiểm tra bản xem trước → Gửi về Lịch Học.</p>' : '<p class="muted">' + (previous ? 'Phiên nhập lịch đã kết thúc. Kết nối lại để cập nhật tuần khác.' : 'Chưa nhập lịch từ trường.') + '</p>') +
         (previous ? '<div class="sync-result"><b>Đã nhập ' + previous.count + (previous.mode === 'exams' ? ' lịch thi' : ' buổi học') + '</b><p>Khoảng ngày ' + LH.fmtDate(new Date(previous.from + 'T00:00:00')) + ' – ' + LH.fmtDate(new Date(previous.to + 'T00:00:00')) + '</p><p class="muted">Lần nhận gần nhất: ' + LH.esc(new Date(previous.importedAt).toLocaleString('vi-VN')) + '</p><button class="btn" data-sync-action="view-week">' + (previous.mode === 'exams' ? 'Xem lịch thi' : 'Xem tuần vừa nhập') + '</button></div>' : '') + '</section>' +
-        '<section class="card"><h2>Cài tiện ích cho bản demo</h2><ol class="sync-steps"><li><a href="/downloads/lichhoc-schools-extension.zip" download>Tải tiện ích Lịch Học 0.4.3 · UTH & FPT</a> và giải nén.</li><li>Mở <code>chrome://extensions</code> hoặc <code>edge://extensions</code>, bật Chế độ dành cho nhà phát triển.</li><li>Chọn Tải tiện ích đã giải nén (Load unpacked), chọn thư mục chứa <code>manifest.json</code>. Nếu đã cài bản cũ, cập nhật thư mục và bấm Reload.</li><li>Tải lại trang Lịch Học, chọn trường rồi bấm Kết nối.</li></ol><p class="muted">Tiện ích 0.4.3 kết nối với https://schedule-information.vercel.app hoặc localhost:3000 trên cùng trình duyệt Chrome/Edge máy tính.</p></section>' +
+        (LH.mobile?.available() ? '' : '<section class="card"><h2>Đồng bộ trên máy tính</h2><ol class="sync-steps"><li><a href="/downloads/lichhoc-schools-extension.zip" download>Tải tiện ích Lịch Học 0.4.3 · UTH & FPT</a> và giải nén.</li><li>Mở <code>chrome://extensions</code> hoặc <code>edge://extensions</code>, bật Chế độ dành cho nhà phát triển.</li><li>Chọn Load unpacked, chọn thư mục chứa <code>manifest.json</code>. Khi cập nhật, tải ZIP mới rồi Reload tiện ích.</li><li>Tải lại trang, chọn trường và kết nối.</li></ol><p class="muted">Tiện ích này dành cho máy tính. Bản app mobile dùng bộ đọc tích hợp.</p></section>') +
         '<section class="card"><h2>Phạm vi bản demo</h2><p>Đọc tuần đang hiển thị trên cổng trường khi bạn bấm nút. Chỉ cập nhật lịch của trường đã chọn trong tuần đó, giữ lịch nhập tay và các tuần khác. Muốn nhập tuần khác, đổi tuần trên cổng trường rồi kết nối lại.</p><p class="muted">Chưa chạy đồng bộ nền hoặc đọc LMS. FPT hỗ trợ đọc lịch thi trên /ExamSchedule; chỉ đọc bảng đang hiển thị. Bộ đọc UTH/FAP cần được kiểm chứng trên tài khoản thật; nếu không nhận diện đủ ngày và giờ, tiện ích sẽ báo lỗi.</p></section>';
     }
   };

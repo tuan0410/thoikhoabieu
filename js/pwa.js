@@ -2,6 +2,7 @@
   'use strict';
   var installPrompt = null;
   function installed() {
+    if (window.LHNative) return true;
     return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   }
   function paint() {
@@ -34,7 +35,7 @@
       });
       window.addEventListener('appinstalled', function () { installPrompt = null; document.getElementById('installBtn').hidden = true; dialog.close(); });
       paint();
-      if ('serviceWorker' in navigator && window.isSecureContext) {
+      if (!window.LHNative && 'serviceWorker' in navigator && window.isSecureContext) {
         navigator.serviceWorker.register('/sw.js').catch(function (error) { console.warn('Không đăng ký được PWA:', error.message); });
       }
     }

@@ -228,6 +228,24 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
         }
         const user = await session(req);
         if (!user) fail(401, 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.');
+        // Native apps submit only a previewed snapshot, using their own app session.
+        // No portal credentials or cookies are accepted or needed here.
+        if (url.pathname === '/api/sync/mobile/import') {
+          if (req.method !== 'POST') fail(405, 'Phương thức không hỗ trợ.');
+          const snapshot = await body(req);
+          if (!isProvider(snapshot?.schoolId)) fail(400, 'Trường này chưa được hỗ trợ.');
+          await db.exec('BEGIN IMMEDIATE');
+          try {
+            const current = await db.prepare('SELECT body,version FROM schedules WHERE user_id=?').get(user.id);
+            const merged = mergeSchoolSchedule(JSON.parse(current.body), snapshot, snapshot.schoolId);
+            const data = cleanData(merged.data);
+            const summary = { ...merged.summary, importedAt: new Date().toISOString() };
+            await db.prepare('UPDATE schedules SET body=?,version=version+1 WHERE user_id=?').run(JSON.stringify(data), user.id);
+            await db.prepare('INSERT INTO sync_status(user_id,body) VALUES(?,?) ON CONFLICT(user_id) DO UPDATE SET body=excluded.body').run(user.id, JSON.stringify(summary));
+            await db.exec('COMMIT');
+            return json(res, 200, { summary });
+          } catch (err) { await db.exec('ROLLBACK'); throw err; }
+        }
         if (url.pathname === '/api/schools' && req.method === 'GET') return json(res, 200, { schools: SCHOOLS });
         if (url.pathname === '/api/sync/status' && req.method === 'GET') {
           const saved = await db.prepare('SELECT body FROM sync_status WHERE user_id=?').get(user.id);

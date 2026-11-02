@@ -1,0 +1,12 @@
+apply plugin: 'com.android.library'
+android {
+    namespace 'com.tuan0410.portal'
+    compileSdk rootProject.ext.compileSdkVersion
+    defaultConfig { minSdkVersion 24 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+repositories { google(); mavenCentral() }
+dependencies { implementation project(':capacitor-android') }

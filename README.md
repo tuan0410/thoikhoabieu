@@ -226,3 +226,7 @@ A project license has not been selected, and this repository does not currently 
 ## Vercel deployment
 
 For a public Vercel deployment with an external Turso database, follow [VERCEL.md](VERCEL.md). Production credentials stay in server environment variables. Local SQLite remains available for development.
+
+## Android and iPhone app
+
+The [Capacitor app source](mobile/README.md) shares the web UI and account database and includes a school portal reader without a separate browser extension. Native builds and real school login must be verified before release. Google OAuth restrictions can block embedded portal login; this is not claimed as solved.

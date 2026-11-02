@@ -1,0 +1,5 @@
+{
+  "name": "lichhoc-portal", "version": "0.1.0", "private": true, "main": "index.js",
+  "capacitor": { "android": { "src": "android" }, "ios": { "src": "ios" } },
+  "peerDependencies": { "@capacitor/core": ">=8.0.0" }
+}

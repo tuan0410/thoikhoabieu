@@ -1,6 +1,16 @@
 (function (LH) {
   "use strict";
   LH.api = async function (url, method, data) {
+    if (window.LHNative) {
+      var nativeResult = await window.LHNative.request(url, method || 'GET', data);
+      if (!nativeResult.payload || typeof nativeResult.payload !== 'object') throw new Error('Máy chủ trả về dữ liệu không hợp lệ.');
+      if (nativeResult.status < 200 || nativeResult.status >= 300) {
+        var nativeError = new Error(nativeResult.payload.error || 'Không thực hiện được yêu cầu.');
+        nativeError.status = nativeResult.status;
+        throw nativeError;
+      }
+      return nativeResult.payload;
+    }
     var response;
     try {
       response = await fetch('/api/' + url, {
