@@ -41,11 +41,12 @@
     if (base.origin !== 'https://fap.fpt.edu.vn') throw new Error('Chỉ đọc lịch từ FAP chính thức.');
     const weekInput = doc.querySelector('input[type="week"]');
     if (weekInput) {
-      const path = doc.getElementById('weekly-timetable-container')?.getAttribute('data-fetch-url') || base.pathname;
+      const path = doc.getElementById('weekly-timetable-container')?.getAttribute('data-fetch-url') || '/WeeklyTimetable/WeekPartial';
       const url = new URL(path, base);
       if (url.origin !== base.origin || !/\/WeeklyTimetable(?:\/|$)/i.test(url.pathname)) throw new Error('Đường dẫn lịch tuần chưa được hỗ trợ.');
       url.searchParams.set('week', isoWeek(day));
-      return { url: url.href, options: { method: 'GET' } };
+      url.searchParams.set('referenceDate', day);
+      return { url: url.href, options: { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' } } };
     }
     const select = [...doc.querySelectorAll('select')].find(el => /week/i.test(el.name || el.id));
     const option = select && [...select.options].find(el => {

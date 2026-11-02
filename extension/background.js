@@ -2,7 +2,7 @@
 const APP_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
 const PROVIDERS = {
   uth: { origin: 'https://portal.ut.edu.vn', entry: '/calendar', schedule: /^\/calendar\/?$/ },
-  'fpt-qn': { origin: 'https://fap.fpt.edu.vn', entry: '/', schedule: /(?:\/WeeklyTimetable(?:\/|$)|\/ScheduleOfWeek\.aspx$)/i }
+  'fpt-qn': { origin: 'https://fap.fpt.edu.vn', entry: '/', schedule: /(?:\/WeeklyTimetable(?:\/|$)|\/ScheduleOfWeek\.aspx$)/i, exams: /^\/ExamSchedule\/?$/i }
 };
 async function handle(message, sender) {
   const source = new URL(sender.url || 'about:blank');
@@ -29,7 +29,9 @@ async function handle(message, sender) {
   if (!provider || source.origin !== provider.origin) throw new Error('Trang không được hỗ trợ.');
   if (connection.expires <= Date.now() || connection.portalTabId !== sender.tab?.id) throw new Error('Hãy quay lại web Lịch Học và kết nối đúng trường để bắt đầu.');
   if (message.type === 'CONNECTION') return { userName: connection.userName, origin: connection.origin, expires: connection.expires };
-  if (message.type === 'IMPORT' && provider.schedule.test(source.pathname)) {
+  const examImport = message.payload?.mode === 'exams';
+  const allowedImport = examImport ? provider.exams?.test(source.pathname) : provider.schedule.test(source.pathname);
+  if (message.type === 'IMPORT' && allowedImport) {
     if (!APP_ORIGINS.includes(connection.origin)) throw new Error('Địa chỉ nhận không hợp lệ.');
     if (message.payload?.schoolId !== connection.schoolId) throw new Error('Lịch không thuộc trường đang kết nối.');
     const response = await fetch(connection.origin + '/api/sync/' + connection.schoolId + '/import', {

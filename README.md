@@ -86,6 +86,8 @@ For example, create a course named `Programming`, add a Monday class from `07:00
 
 ## School timetable imports
 
+**Update 0.4.0:** FPT Quy Nhơn also supports previewing and importing the visible `/ExamSchedule` table. Exam imports update matching course/type entries while preserving manual exams and class schedules. No live FAP verification or automatic pagination is claimed. See [exam setup and diagnostic export](FPT_SYNC.md).
+
 **Update 0.3.0:** the FPT extension can collect a selected semester date range, preview all weeks, and submit one atomic import. Update the extension and restart the Node.js server first. See [semester setup and current portal compatibility](FPT_SYNC.md). UTH still uses visible-week import. Live FAP verification remains pending.
 
 | Option | Portal | Demo workflow |

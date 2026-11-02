@@ -72,7 +72,8 @@ function cleanData(input) {
   });
   result.exams = idList(input.exams, x => ({
     c: course(x.c), day: date(x.day), time: time(x.time), dur: integer(x.dur, 1, 600),
-    room: text(x.room, 100, false), form: text(x.form, 100)
+    room: text(x.room, 100, false), form: text(x.form, 100),
+    ...(isProvider(x.provider) ? { provider: x.provider } : {})
   }));
   result.tasks = idList(input.tasks, t => {
     if (typeof t.done !== 'boolean') fail(400, 'Trạng thái bài tập không hợp lệ.');
