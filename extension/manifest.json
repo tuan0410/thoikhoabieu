@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lịch Học · UTH & FPT Quy Nhơn (Demo)",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Đọc lịch tuần UTH hoặc FAP FPT Quy Nhơn và gửi bản xem trước về tài khoản Lịch Học.",
   "minimum_chrome_version": "102",
   "permissions": ["storage"],
@@ -10,6 +10,6 @@
   "content_scripts": [
     { "matches": ["http://localhost:3000/*", "http://127.0.0.1:3000/*"], "js": ["web-bridge.js"] },
     { "matches": ["https://portal.ut.edu.vn/*"], "js": ["uth-parser.js", "uth-content.js"], "run_at": "document_idle" },
-    { "matches": ["https://fap.fpt.edu.vn/*"], "js": ["fpt-parser.js", "uth-content.js"], "run_at": "document_idle" }
+    { "matches": ["https://fap.fpt.edu.vn/*"], "js": ["fpt-parser.js", "semester.js", "uth-content.js"], "run_at": "document_idle" }
   ]
 }

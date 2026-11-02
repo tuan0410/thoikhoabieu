@@ -2,6 +2,14 @@
 
 ## Dùng bản demo 0.2.0
 
+### Cập nhật 0.3.0: đọc cả học kỳ
+
+Cài/Reload tiện ích 0.3.0, khởi động lại máy chủ Node.js và tải lại tab Lịch Học/FAP. Trên bảng tiện ích FPT, chọn **thứ hai đầu kỳ** và **chủ nhật cuối kỳ**, bấm **Đọc cả học kỳ**. Tiện ích tải lần lượt lịch của từng tuần, hiển thị tiến độ và cho xem trước toàn bộ trước khi gửi một lần. Có nút hủy đọc.
+
+Hỗ trợ điều khiển tuần dạng `input[type=week]` ở WeeklyTimetable và form ASP.NET có `__doPostBack` ở ScheduleOfWeek.aspx. Nếu điều khiển thực tế khác, sẽ báo không hỗ trợ thay vì báo đã đọc cả kỳ. FAP cũ cần chọn đúng năm trước; khoảng giao năm có thể phải chia theo năm nếu danh sách tuần không chứa tuần cần đọc.
+
+Một tuần lỗi/sai ngày sẽ dừng toàn bộ, không gửi phần đã đọc. Tuần trống chỉ được chấp nhận nếu parser đọc đủ ngày và các hàng slot trống; bản xem trước nêu rõ việc thay thế lịch FPT trong phạm vi. Máy chủ lưu toàn học kỳ trong một giao dịch. Tối đa 52 tuần và 3.000 buổi học lưu trong tài khoản. UTH vẫn dùng chế độ tuần; chế độ học kỳ này dành cho FPT. Chưa kiểm chứng luồng tải nhiều tuần trên tài khoản FAP thật.
+
 1. Mở web Lịch Học trên máy tính, đăng nhập và vào **Đồng bộ lịch trường**.
 2. Tải ZIP tiện ích mới, giải nén và Load unpacked trong `chrome://extensions` hoặc `edge://extensions`. Nếu đã dùng bản UTH 0.1.0, thay thư mục tiện ích bằng mã mới và bấm **Reload**. Không cần cài hai bản song song.
 3. Tải lại tab Lịch Học. Với PWA, đóng hết cửa sổ ứng dụng rồi mở lại để nhận bản cập nhật.

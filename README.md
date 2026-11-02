@@ -86,6 +86,8 @@ For example, create a course named `Programming`, add a Monday class from `07:00
 
 ## School timetable imports
 
+**Update 0.3.0:** the FPT extension can collect a selected semester date range, preview all weeks, and submit one atomic import. Update the extension and restart the Node.js server first. See [semester setup and current portal compatibility](FPT_SYNC.md). UTH still uses visible-week import. Live FAP verification remains pending.
+
 | Option | Portal | Demo workflow |
 | --- | --- | --- |
 | UTH | [portal.ut.edu.vn](https://portal.ut.edu.vn/) | Sign in, open the calendar, and read the visible week. |
@@ -162,7 +164,7 @@ Use SQLite backup facilities, or stop the server before copying database files. 
 npm test
 ```
 
-Use `npm.cmd test` on Windows PowerShell if needed. The current suite contains **27 passing tests**, including nested API tests.
+Use `npm.cmd test` on Windows PowerShell if needed. Run the suite to see the current test count, including nested API tests.
 
 Coverage includes account isolation, session revocation, restart persistence, API validation, conflicting updates, timetable dates, HTML escaping, form drafts, PWA resources and cache exclusions, school-specific import tickets, parser fixtures, and duplicate-free imports. Parser and extension mocks do not replace testing with live school accounts or actual phone/browser installations.
 

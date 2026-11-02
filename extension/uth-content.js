@@ -24,13 +24,21 @@
   const target = create('p', '', 'muted');
   const actions = create('div', '', 'actions');
   const scan = create('button', 'Đọc lịch tuần'); scan.type = 'button';
+  const semester = create('button', 'Đọc cả học kỳ'); semester.type = 'button';
+  const cancelRead = create('button', 'Hủy đọc'); cancelRead.type = 'button'; cancelRead.hidden = true;
+  const range = create('div'); range.hidden = !fpt;
+  const startLabel = create('label', 'Thứ hai đầu kỳ '), startDate = create('input'); startDate.type = 'date'; startLabel.appendChild(startDate);
+  const endLabel = create('label', 'Chủ nhật cuối kỳ '), endDate = create('input'); endDate.type = 'date'; endLabel.appendChild(endDate);
+  range.append(startLabel, create('br'), endLabel, create('p', 'Chọn khoảng học kỳ rồi bấm Đọc cả học kỳ. Chỉ gửi sau khi tải đủ tất cả tuần.', 'muted'));
   const send = create('button', 'Gửi về Lịch Học', 'primary'); send.type = 'button'; send.disabled = true;
   const preview = create('ul');
   const scope = create('p', '', 'muted');
   const back = create('a', 'Quay lại web Lịch Học'); back.hidden = true; back.target = '_blank'; back.rel = 'noopener noreferrer';
-  actions.append(scan, send); body.append(status, target, actions, scope, preview, back);
+  actions.append(scan); if (fpt) actions.append(semester, cancelRead); actions.append(send);
+  body.append(status, target, range, actions, scope, preview, back);
   panel.append(header, body); shadow.appendChild(panel); document.body.appendChild(host);
   let snapshot = null, connection = null;
+  let readController = null;
   function message(value, isError) { status.textContent = value; status.className = isError ? 'error' : 'muted'; }
   async function ask(type, payload) {
     const response = await chrome.runtime.sendMessage({ type, payload });
@@ -42,9 +50,33 @@
     if (!event.isTrusted) return;
     body.hidden = !body.hidden; toggle.textContent = body.hidden ? 'Mở' : 'Thu gọn';
   });
+  cancelRead.addEventListener('click', event => { if (event.isTrusted) readController?.abort(); });
+  semester.addEventListener('click', async event => {
+    if (!event.isTrusted || !fpt) return;
+    snapshot = null; send.disabled = true; scan.disabled = true; semester.disabled = true;
+    cancelRead.hidden = false; preview.replaceChildren(); back.hidden = true;
+    readController = new AbortController();
+    try {
+      if (!onCalendar()) throw new Error('Hãy mở Weekly timetable trên FAP trước.');
+      connection = await ask('CONNECTION');
+      snapshot = await LichHocSemester.readSemester(document, location.href, startDate.value, endDate.value, (done, total, day) => {
+        message('Đang đọc ' + done + '/' + total + ' tuần' + (day ? ' · ' + day : '') + '. Chưa gửi dữ liệu.');
+      }, readController.signal);
+      const rows = snapshot.weeks.flatMap(week => week.events);
+      target.textContent = 'Tài khoản nhận: ' + connection.userName + ' · ' + connection.origin;
+      scope.textContent = 'Sẽ cập nhật lịch FPT từ ' + snapshot.weeks[0].days[0] + ' đến ' + snapshot.weeks.at(-1).days[6] + ', gồm ' + snapshot.weeks.length + ' tuần và ' + rows.length + ' buổi. Tuần đã xác nhận trống sẽ xóa lịch FPT cũ trong tuần đó.';
+      for (const week of snapshot.weeks) {
+        preview.appendChild(create('li', 'Tuần ' + week.days[0] + ': ' + week.events.length + ' buổi'));
+        for (const row of week.events) preview.appendChild(create('li', row.day + ' · ' + row.start + '–' + row.end + ' · ' + row.name + ' · ' + row.room));
+      }
+      message('Đã đọc đủ học kỳ. Kiểm tra bản xem trước rồi bấm Gửi về Lịch Học.');
+      send.disabled = false;
+    } catch (error) { snapshot = null; message(error.message, true); }
+    finally { scan.disabled = false; semester.disabled = false; cancelRead.hidden = true; readController = null; }
+  });
   scan.addEventListener('click', async event => {
     if (!event.isTrusted) return;
-    snapshot = null; send.disabled = true; scan.disabled = true; preview.replaceChildren(); back.hidden = true;
+    snapshot = null; send.disabled = true; scan.disabled = true; semester.disabled = true; preview.replaceChildren(); back.hidden = true;
     try {
       if (!onCalendar()) throw new Error('Hãy tự đăng nhập rồi mở ' + (fpt ? 'Weekly timetable / Thời khóa biểu từng tuần trên FAP.' : 'mục Lịch học (/calendar) của UTH.'));
       connection = await ask('CONNECTION');
@@ -55,19 +87,21 @@
       message('Đọc được ' + snapshot.events.length + ' buổi. Hãy kiểm tra tên môn, ngày và giờ trước khi gửi.');
       send.disabled = false;
     } catch (error) { message(error.message || 'Không đọc được lịch ' + label + '.', true); }
-    finally { scan.disabled = false; }
+    finally { scan.disabled = false; semester.disabled = false; }
   });
   send.addEventListener('click', async event => {
     if (!event.isTrusted || !snapshot) return;
-    send.disabled = true; scan.disabled = true;
+    send.disabled = true; scan.disabled = true; semester.disabled = true;
     try {
-      const current = parser.readDocument(document);
-      if (JSON.stringify(current) !== JSON.stringify(snapshot)) throw new Error('Lịch vừa thay đổi. Hãy bấm Đọc lịch tuần và kiểm tra lại bản xem trước.');
+      if (snapshot.mode !== 'semester') {
+        const current = parser.readDocument(document);
+        if (JSON.stringify(current) !== JSON.stringify(snapshot)) throw new Error('Lịch vừa thay đổi. Hãy bấm Đọc lịch tuần và kiểm tra lại bản xem trước.');
+      }
       const result = await ask('IMPORT', snapshot);
       message('Đã gửi ' + result.summary.count + ' buổi về tài khoản Lịch Học.');
       back.href = connection.origin + '/#dong-bo'; back.hidden = false;
       snapshot = null;
     } catch (error) { message(error.message || 'Không kết nối được máy chủ Lịch Học. Hãy kiểm tra máy chủ đang chạy.', true); }
-    finally { scan.disabled = false; }
+    finally { scan.disabled = false; semester.disabled = false; }
   });
 })();
