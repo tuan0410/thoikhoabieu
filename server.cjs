@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { promisify } = require('node:util');
-const { DatabaseSync } = require('node:sqlite');
+const { openDatabase } = require('./lib/database.cjs');
 const { SCHOOLS, mergeSchoolSchedule } = require('./lib/school-sync.cjs');
 const isProvider = id => SCHOOLS.some(s => s.enabled && s.id === id);
 const scrypt = promisify(crypto.scrypt);
@@ -89,33 +89,40 @@ function emptyData() {
 }
 
 function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'lichhoc.sqlite'), origin = process.env.APP_ORIGIN, secure = process.env.NODE_ENV === 'production' } = {}) {
-  if (dbPath !== ':memory:') fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-  const db = new DatabaseSync(dbPath);
-  db.exec(`PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL;
+  const db = openDatabase({ dbPath });
+  const initialize = async () => {
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL, name TEXT NOT NULL, salt TEXT NOT NULL, password TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, expires INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS schedules (user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, body TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 0);
-    CREATE TABLE IF NOT EXISTS sync_tickets (token TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, session_token TEXT NOT NULL, expires INTEGER NOT NULL);
+    CREATE TABLE IF NOT EXISTS sync_tickets (token TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, session_token TEXT NOT NULL, expires INTEGER NOT NULL, school_id TEXT NOT NULL DEFAULT 'uth');
     CREATE TABLE IF NOT EXISTS sync_status (user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, body TEXT NOT NULL);`);
-  if (!db.prepare('PRAGMA table_info(sync_tickets)').all().some(column => column.name === 'school_id')) {
-    db.exec("ALTER TABLE sync_tickets ADD COLUMN school_id TEXT NOT NULL DEFAULT 'uth'");
+  if (!(await db.prepare('PRAGMA table_info(sync_tickets)').all()).some(column => column.name === 'school_id')) {
+    try { await db.exec("ALTER TABLE sync_tickets ADD COLUMN school_id TEXT NOT NULL DEFAULT 'uth'"); }
+    catch (err) {
+      // Another cold instance may have applied this migration concurrently.
+      if (!(await db.prepare('PRAGMA table_info(sync_tickets)').all()).some(c => c.name === 'school_id')) throw err;
+    }
   }
+  };
+  let ready;
+  const ensureReady = () => ready ||= initialize().catch(err => { ready = undefined; throw err; });
   const attempts = new Map();
   const hash = value => crypto.createHash('sha256').update(value).digest('hex');
   const publicUser = user => ({ id: user.id, name: user.name, email: user.email });
-  function session(req) {
+  async function session(req) {
     const token = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith('lh_session='));
     if (!token) return null;
-    return db.prepare('SELECT users.* FROM sessions JOIN users ON users.id=sessions.user_id WHERE token=? AND expires>?')
+    return await db.prepare('SELECT users.* FROM sessions JOIN users ON users.id=sessions.user_id WHERE token=? AND expires>?')
       .get(hash(token.slice(11)), Date.now());
   }
   function setCookie(res, token, age = SESSION_AGE / 1000) {
     res.setHeader('Set-Cookie', `lh_session=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${age}${secure ? '; Secure' : ''}`);
   }
-  function login(user, res) {
-    db.prepare('DELETE FROM sessions WHERE expires<=?').run(Date.now());
+  async function login(user, res) {
+    await db.prepare('DELETE FROM sessions WHERE expires<=?').run(Date.now());
     const token = crypto.randomBytes(32).toString('hex');
-    db.prepare('INSERT INTO sessions (token,user_id,expires) VALUES (?,?,?)').run(hash(token), user.id, Date.now() + SESSION_AGE);
+    await db.prepare('INSERT INTO sessions (token,user_id,expires) VALUES (?,?,?)').run(hash(token), user.id, Date.now() + SESSION_AGE);
     setCookie(res, token);
   }
   function json(res, status, data) {
@@ -124,17 +131,24 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
   }
   async function body(req) {
     if (!(req.headers['content-type'] || '').startsWith('application/json')) fail(415, 'Yêu cầu cần có dữ liệu JSON.');
+    // Vercel's Node handler may provide a parsed body rather than a readable stream.
+    if (req.body !== undefined) {
+      const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      if (Buffer.byteLength(raw) > 512000) fail(413, 'D? li?u qu? l?n.');
+      try { return JSON.parse(raw); } catch { fail(400, 'D? li?u JSON kh?ng h?p l?.'); }
+    }
     let size = 0, chunks = [];
     for await (const chunk of req) { size += chunk.length; if (size > 512000) fail(413, 'Dữ liệu quá lớn.'); chunks.push(chunk); }
     try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { fail(400, 'Dữ liệu JSON không hợp lệ.'); }
   }
-  const server = http.createServer(async (req, res) => {
+  const handle = async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'same-origin');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
     try {
-      const expectedOrigin = origin || `http://${req.headers.host}`;
+      try { await ensureReady(); } catch (err) { console.error('Database initialization failed:', err.code || err.name); fail(503, 'Kh?ng k?t n?i ???c database. Vui l?ng ki?m tra c?u h?nh m?y ch?.'); }
+      const expectedOrigin = origin || `${process.env.VERCEL ? 'https' : 'http'}://${req.headers.host}`;
       const url = new URL(req.url, expectedOrigin);
       if (url.pathname.startsWith('/api/')) {
         // This endpoint accepts only a short-lived, one-use capability. It never uses cookies.
@@ -145,27 +159,27 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
           const token = /^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization || '');
           if (!token) fail(401, 'Thiếu phiên đồng bộ.');
           const ticketHash = hash(token[1]);
-          const ticket = db.prepare('SELECT sync_tickets.* FROM sync_tickets JOIN sessions ON sessions.token=sync_tickets.session_token WHERE sync_tickets.token=? AND sync_tickets.expires>? AND sessions.expires>?')
+          const ticket = await db.prepare('SELECT sync_tickets.* FROM sync_tickets JOIN sessions ON sessions.token=sync_tickets.session_token WHERE sync_tickets.token=? AND sync_tickets.expires>? AND sessions.expires>?')
             .get(ticketHash, Date.now(), Date.now());
           if (!ticket) fail(401, 'Phiên đồng bộ đã hết hạn hoặc đã sử dụng. Hãy kết nối lại từ Lịch Học.');
           if (ticket.school_id !== importRoute[1]) fail(403, 'Phiên đồng bộ không thuộc trường này.');
           const snapshot = await body(req);
           // Recheck after reading the body so two concurrent submissions cannot reuse a ticket.
-          db.exec('BEGIN IMMEDIATE');
+          await db.exec('BEGIN IMMEDIATE');
           try {
-            const valid = db.prepare('SELECT sync_tickets.* FROM sync_tickets JOIN sessions ON sessions.token=sync_tickets.session_token WHERE sync_tickets.token=? AND sync_tickets.expires>? AND sessions.expires>?')
+            const valid = await db.prepare('SELECT sync_tickets.* FROM sync_tickets JOIN sessions ON sessions.token=sync_tickets.session_token WHERE sync_tickets.token=? AND sync_tickets.expires>? AND sessions.expires>?')
               .get(ticketHash, Date.now(), Date.now());
             if (!valid) fail(401, 'Phiên đồng bộ không còn hiệu lực.');
-            const current = db.prepare('SELECT body,version FROM schedules WHERE user_id=?').get(valid.user_id);
+            const current = await db.prepare('SELECT body,version FROM schedules WHERE user_id=?').get(valid.user_id);
             const merged = mergeSchoolSchedule(JSON.parse(current.body), snapshot, valid.school_id);
             const data = cleanData(merged.data);
             const summary = { ...merged.summary, importedAt: new Date().toISOString() };
-            db.prepare('UPDATE schedules SET body=?,version=version+1 WHERE user_id=?').run(JSON.stringify(data), valid.user_id);
-            db.prepare('INSERT INTO sync_status(user_id,body) VALUES(?,?) ON CONFLICT(user_id) DO UPDATE SET body=excluded.body').run(valid.user_id, JSON.stringify(summary));
-            db.prepare('DELETE FROM sync_tickets WHERE token=?').run(ticketHash);
-            db.exec('COMMIT');
+            await db.prepare('UPDATE schedules SET body=?,version=version+1 WHERE user_id=?').run(JSON.stringify(data), valid.user_id);
+            await db.prepare('INSERT INTO sync_status(user_id,body) VALUES(?,?) ON CONFLICT(user_id) DO UPDATE SET body=excluded.body').run(valid.user_id, JSON.stringify(summary));
+            await db.prepare('DELETE FROM sync_tickets WHERE token=?').run(ticketHash);
+            await db.exec('COMMIT');
             return json(res, 200, { summary });
-          } catch (err) { db.exec('ROLLBACK'); throw err; }
+          } catch (err) { await db.exec('ROLLBACK'); throw err; }
         }
         if (!['GET', 'HEAD'].includes(req.method)) {
           if (req.headers.origin !== expectedOrigin || req.headers['x-requested-with'] !== 'LichHoc') fail(403, 'Yêu cầu không hợp lệ. Hãy mở lại trang.');
@@ -188,36 +202,36 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
             const salt = crypto.randomBytes(16).toString('hex');
             const password = (await scrypt(data.password, salt, 64)).toString('hex');
             user = { id: crypto.randomUUID(), email, name, salt, password };
-            db.exec('BEGIN');
+            await db.exec('BEGIN');
             try {
-              db.prepare('INSERT INTO users (id,email,name,salt,password) VALUES (?,?,?,?,?)').run(user.id, email, name, salt, password);
-              db.prepare('INSERT INTO schedules (user_id,body) VALUES (?,?)').run(user.id, JSON.stringify(emptyData()));
-              db.exec('COMMIT');
-            } catch (err) { db.exec('ROLLBACK'); if (err.code?.startsWith('ERR_SQLITE')) fail(409, 'Không thể đăng ký với email này.'); throw err; }
+              await db.prepare('INSERT INTO users (id,email,name,salt,password) VALUES (?,?,?,?,?)').run(user.id, email, name, salt, password);
+              await db.prepare('INSERT INTO schedules (user_id,body) VALUES (?,?)').run(user.id, JSON.stringify(emptyData()));
+              await db.exec('COMMIT');
+            } catch (err) { await db.exec('ROLLBACK'); if (/SQLITE_CONSTRAINT(?:_UNIQUE|_PRIMARYKEY)?$/.test(err.code || '') || err.code === 'ERR_SQLITE_CONSTRAINT_UNIQUE' || (err.code === 'ERR_SQLITE_ERROR' && /UNIQUE constraint failed/.test(err.message))) fail(409, 'Không thể đăng ký với email này.'); throw err; }
           } else {
-            user = db.prepare('SELECT * FROM users WHERE email=?').get(email);
+            user = await db.prepare('SELECT * FROM users WHERE email=?').get(email);
             const derived = await scrypt(data.password, user?.salt || '00000000000000000000000000000000', 64);
             if (!user || !crypto.timingSafeEqual(derived, Buffer.from(user.password, 'hex'))) fail(401, 'Email hoặc mật khẩu không đúng.');
           }
-          login(user, res);
+          await login(user, res);
           return json(res, 200, { user: publicUser(user) });
         }
         if (url.pathname === '/api/auth/me' && req.method === 'GET') {
-          const user = session(req);
+          const user = await session(req);
           return json(res, 200, { user: user ? publicUser(user) : null });
         }
         if (url.pathname === '/api/auth/logout' && req.method === 'POST') {
           const raw = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith('lh_session='));
-          if (raw) db.prepare('DELETE FROM sessions WHERE token=?').run(hash(raw.slice(11)));
+          if (raw) await db.prepare('DELETE FROM sessions WHERE token=?').run(hash(raw.slice(11)));
           setCookie(res, '', 0);
           return json(res, 200, { ok: true });
         }
-        const user = session(req);
+        const user = await session(req);
         if (!user) fail(401, 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.');
         if (url.pathname === '/api/schools' && req.method === 'GET') return json(res, 200, { schools: SCHOOLS });
         if (url.pathname === '/api/sync/status' && req.method === 'GET') {
-          const saved = db.prepare('SELECT body FROM sync_status WHERE user_id=?').get(user.id);
-          const pending = db.prepare('SELECT expires,school_id FROM sync_tickets WHERE user_id=? AND expires>?').get(user.id, Date.now());
+          const saved = await db.prepare('SELECT body FROM sync_status WHERE user_id=?').get(user.id);
+          const pending = await db.prepare('SELECT expires,school_id FROM sync_tickets WHERE user_id=? AND expires>?').get(user.id, Date.now());
           return json(res, 200, { lastSync: saved ? JSON.parse(saved.body) : null, pendingUntil: pending?.expires || null, pendingSchoolId: pending?.school_id || null });
         }
         if (url.pathname === '/api/sync/ticket' && req.method === 'POST') {
@@ -227,17 +241,17 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
           const raw = crypto.randomBytes(32).toString('hex');
           const expires = Date.now() + 10 * 60000;
           const sessionCookie = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith('lh_session='));
-          db.prepare('DELETE FROM sync_tickets WHERE user_id=? OR expires<=?').run(user.id, Date.now());
-          db.prepare('INSERT INTO sync_tickets(token,user_id,session_token,expires,school_id) VALUES(?,?,?,?,?)').run(hash(raw), user.id, hash(sessionCookie.slice(11)), expires, school.id);
+          await db.prepare('DELETE FROM sync_tickets WHERE user_id=? OR expires<=?').run(user.id, Date.now());
+          await db.prepare('INSERT INTO sync_tickets(token,user_id,session_token,expires,school_id) VALUES(?,?,?,?,?)').run(hash(raw), user.id, hash(sessionCookie.slice(11)), expires, school.id);
           return json(res, 200, { ticket: raw, expires, schoolId: school.id, calendarUrl: school.calendarUrl, userName: user.name });
         }
         if (url.pathname === '/api/sync/ticket' && req.method === 'DELETE') {
-          db.prepare('DELETE FROM sync_tickets WHERE user_id=?').run(user.id);
+          await db.prepare('DELETE FROM sync_tickets WHERE user_id=?').run(user.id);
           return json(res, 200, { ok: true });
         }
         if (url.pathname === '/api/data') {
           if (req.method === 'GET') {
-            const row = db.prepare('SELECT body,version FROM schedules WHERE user_id=?').get(user.id);
+            const row = await db.prepare('SELECT body,version FROM schedules WHERE user_id=?').get(user.id);
             return json(res, 200, { data: JSON.parse(row.body), version: row.version });
           }
           if (req.method === 'PUT') {
@@ -245,7 +259,7 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
             if (!input || typeof input !== 'object') fail(400, 'Dữ liệu không hợp lệ.');
             const data = cleanData(input.data);
             integer(input.version, 0, Number.MAX_SAFE_INTEGER);
-            const result = db.prepare('UPDATE schedules SET body=?,version=version+1 WHERE user_id=? AND version=?')
+            const result = await db.prepare('UPDATE schedules SET body=?,version=version+1 WHERE user_id=? AND version=?')
               .run(JSON.stringify(data), user.id, input.version);
             if (!result.changes) fail(409, 'Dữ liệu đã thay đổi ở cửa sổ khác. Hãy tải lại trang trước khi sửa tiếp.');
             return json(res, 200, { data, version: input.version + 1 });
@@ -275,7 +289,16 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
       if (!err.status) console.error(err);
       json(res, err.status || 500, { error: err.status ? err.message : 'Máy chủ gặp lỗi. Vui lòng thử lại.' });
     }
-  });
+  };
+  // Serialize requests on this connection so transactions cannot overlap.
+  let queue = Promise.resolve();
+  const handler = (req, res) => {
+    const pending = queue.then(() => handle(req, res));
+    queue = pending.catch(() => {});
+    return pending;
+  };
+  const server = http.createServer(handler);
+  server.handler = handler;
   server.on('close', () => db.close());
   return server;
 }

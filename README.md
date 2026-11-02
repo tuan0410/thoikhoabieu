@@ -10,7 +10,7 @@ A Vietnamese student planner with individual accounts, courses, class schedules,
 
 Lịch Học brings a student's timetable, assignments, and exam dates into one place. Each new account starts with an empty schedule. Users enter their own school and semester information instead of editing sample data in the source code.
 
-The interface uses plain HTML, CSS, and JavaScript. The backend uses Node.js built-in modules and SQLite, keeping the demo small and easy to run without external npm dependencies. The same interface serves as a Progressive Web App (PWA) for Android and iPhone.
+The interface uses plain HTML, CSS, and JavaScript. The backend uses Node.js with SQLite locally and Turso/libSQL on Vercel. The remote database driver is installed with npm install. The same interface serves as a Progressive Web App (PWA) for Android and iPhone.
 
 The main integration challenge is reading authenticated school calendars with different layouts and date formats. A desktop extension reads the week that the student opens after signing in, shows a preview, and imports dated classes into their account. It does not turn one imported week into a recurring semester schedule.
 
@@ -62,7 +62,7 @@ cd thoikhoabieu
 npm start
 ```
 
-Open **http://localhost:3000**. No `npm install` or manual database setup is required for this version. The server creates its SQLite database on first launch.
+Open **http://localhost:3000**. Local SQLite does not require a database service; the server creates its database on first launch. Run `npm install` before using Turso or deploying. See [Vercel setup](VERCEL.md).
 
 If PowerShell blocks `npm.ps1`, use:
 
@@ -203,7 +203,7 @@ python scripts/make_icons.py
 | The PWA needs a connection for personal data and has no push reminders. | Design offline calendar access and notification permissions. |
 | Email is a login identifier without verification or reset emails. | Add email ownership verification and account recovery. |
 | One active semester; manually entered classes recur throughout it. | Add semester history, holidays, and recurrence exceptions. |
-| SQLite and in-process rate limits target a single server. | Introduce shared infrastructure if multiple instances are needed. |
+| Local SQLite targets a single server; Vercel uses external Turso. Rate limits are still per instance. | Add shared rate limiting for production traffic. |
 
 ## Contributing
 
@@ -222,3 +222,7 @@ For school connectors, include anonymized fixtures and tests for dates, times, c
 ## License
 
 A project license has not been selected, and this repository does not currently include a `LICENSE` file. A license should be added explicitly by the maintainer rather than assumed from referenced projects.
+
+## Vercel deployment
+
+For a public Vercel deployment with an external Turso database, follow [VERCEL.md](VERCEL.md). Production credentials stay in server environment variables. Local SQLite remains available for development.

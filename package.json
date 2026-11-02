@@ -3,6 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "description": "Lịch học cá nhân với tài khoản và dữ liệu riêng",
-  "engines": { "node": ">=24.0.0" },
-  "scripts": { "start": "node server.cjs", "test": "node --test tests/*.test.cjs" }
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "start": "node server.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "migrate:turso": "node scripts/migrate-turso.cjs"
+  },
+  "dependencies": {
+    "@libsql/client": "0.18.0"
+  }
 }

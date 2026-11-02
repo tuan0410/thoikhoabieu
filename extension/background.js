@@ -1,5 +1,5 @@
 'use strict';
-const APP_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+const APP_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://schedule-information.vercel.app'];
 const PROVIDERS = {
   uth: { origin: 'https://portal.ut.edu.vn', entry: '/calendar', schedule: /^\/calendar\/?$/ },
   'fpt-qn': { origin: 'https://fap.fpt.edu.vn', entry: '/', schedule: /(?:\/WeeklyTimetable(?:\/|$)|\/ScheduleOfWeek\.aspx$)/i, exams: /^\/ExamSchedule\/?$/i }

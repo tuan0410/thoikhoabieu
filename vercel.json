@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "node scripts/build-vercel.cjs",
+  "outputDirectory": "public",
+  "functions": { "api/index.js": { "maxDuration": 60, "includeFiles": "{index.html,offline.html,style.css,sw.js,manifest.webmanifest,js/**,icons/**,downloads/**}" } },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }]
+}
