@@ -72,3 +72,27 @@ test('FAP cũ gửi postback đổi tuần đúng form và bỏ trường mật 
   assert.equal(body.has('password'), false);
   assert.equal(body.has('file'), false);
 });
+
+
+test('Semester accepts unassigned weeks without a timetable and continues to later weeks', async () => {
+  const { readDocument } = require('../extension/fpt-parser.js');
+  const blankDoc = content => ({ body: { textContent: content }, querySelector: () => null, querySelectorAll: () => [], getElementById: () => null });
+  const empty = readDocument(blankDoc('No activities for this week'), { allowEmpty: true, requestedWeek: '2026-09-21', trustedPartial: true });
+  assert.equal(empty.events.length, 0);
+  assert.deepEqual(empty.days, week('2026-09-21').days);
+  assert.equal(readDocument(blankDoc(''), { allowEmpty: true, requestedWeek: '2026-09-21', trustedPartial: true }).events.length, 0);
+  const snapshot = await collect(['2026-09-14', '2026-09-21', '2026-09-28'], async day => day === '2026-09-21' ? empty : week(day));
+  const merged = mergeSchoolSchedule(emptyData(), snapshot, 'fpt-qn');
+  assert.equal(snapshot.weeks.length, 3);
+  assert.equal(merged.summary.count, 2);
+});
+
+test('Missing tables do not silently accept expired sessions, error pages or unrecognized classes', () => {
+  const { readDocument } = require('../extension/fpt-parser.js');
+  const doc = (content, password = false) => ({ body: { textContent: content }, querySelector: selector => password && selector.includes('password') ? {} : null, querySelectorAll: () => [], getElementById: () => null });
+  const options = { allowEmpty: true, requestedWeek: '2026-09-21', trustedPartial: true };
+  for (const content of ['Sign in', 'Internal Server Error', 'No activities PRF192', 'Unknown markup']) assert.throws(() => readDocument(doc(content), options));
+  assert.throws(() => readDocument(doc('No activities', true), options));
+  assert.throws(() => readDocument(doc('No activities'), { allowEmpty: true }));
+  assert.throws(() => readDocument(doc(''), { ...options, trustedPartial: false }));
+});

@@ -58,7 +58,7 @@
         if (!seen.has(key)) { seen.add(key); events.push(event); }
       });
     }
-    if (!events.length && !(options.allowEmpty && records.rows.length > 0)) fail('Chưa thấy buổi học trên FAP. Không xác nhận được lịch tuần trống.');
+    if (!events.length && !(options.allowEmpty && (records.rows.length > 0 || records.emptyConfirmed === true))) fail('Chưa thấy buổi học trên FAP. Không xác nhận được lịch tuần trống.');
     return { schoolId: 'fpt-qn', complete: true, days, events };
   }
   function readDocument(doc, options = {}) {
@@ -95,7 +95,25 @@
           return { text: cell.innerText || cell.textContent, title: titleTexts[0] || '', room: room?.textContent || '' };
         }));
       }
-      return parse({ headers, year, referenceDate, rows }, options);
+      return parse({ headers, year, referenceDate, rows, emptyConfirmed: options.allowEmpty && !/\b[A-Z]{2,8}\d{2,4}[A-Za-z0-9]*\b/.test(text(table.textContent)) }, options);
+    }
+    // A successful WeekPartial can omit the entire table for an unassigned week.
+    // Only the semester loader supplies the requested week and endpoint context.
+    const content = text(doc.body?.textContent);
+    const login = doc.querySelector('input[type="password"], form[action*="login" i], form[action*="signin" i]');
+    const problem = /(?:sign in|log in|session expired|unauthorized|access denied|internal server error|exception|đăng nhập|hết phiên|lỗi máy chủ)/i.test(content);
+    const emptyMessage = /(?:no (?:activities|classes|courses|schedule|timetable|data|records)|not (?:yet )?scheduled|chưa (?:có|được xếp) lịch|không có (?:lịch|buổi học|dữ liệu))/i.test(content);
+    const requested = options.requestedWeek;
+    const validWeek = /^20\d{2}-\d{2}-\d{2}$/.test(requested || '') && !isNaN(new Date(requested + 'T00:00:00Z')) && new Date(requested + 'T00:00:00Z').getUTCDay() === 1;
+    const hasCourse = /\b[A-Z]{2,8}\d{2,4}[A-Za-z0-9]*\b/.test(content);
+    if (options.allowEmpty && validWeek && !login && !problem && !hasCourse &&
+        (emptyMessage || (options.trustedPartial && !content))) {
+      const start = new Date(requested + 'T00:00:00Z');
+      const days = Array.from({ length: 7 }, (_, i) => {
+        const day = new Date(start); day.setUTCDate(day.getUTCDate() + i);
+        return day.toISOString().slice(0, 10);
+      });
+      return { schoolId: 'fpt-qn', complete: true, days, events: [] };
     }
     fail('Không tìm thấy bảng Weekly timetable của FAP. Hãy mở lịch tuần và chờ tải xong.');
   }

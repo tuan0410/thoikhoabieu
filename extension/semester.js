@@ -74,13 +74,15 @@
       const request = requestFor(current, pageUrl, day);
       const response = await fetch(request.url, { ...request.options, credentials: 'same-origin', signal });
       if (!response.ok || new URL(response.url).origin !== 'https://fap.fpt.edu.vn') throw new Error('Phiên FAP hết hạn hoặc không tải được lịch.');
+      const finalUrl = new URL(response.url);
+      if (!/\/WeeklyTimetable(?:\/|$)|\/ScheduleOfWeek\.aspx$/i.test(finalUrl.pathname)) throw new Error('FAP returned a different page. Please sign in again.');
       const html = await response.text();
       const next = new DOMParser().parseFromString(html, 'text/html');
       // Partials may omit the year control; use the requested date as an explicit reference.
       let container = next.getElementById('weekly-timetable-container');
       if (!container) { container = next.createElement('div'); container.id = 'weekly-timetable-container'; next.body.appendChild(container); }
       if (!container.getAttribute('data-reference-date') && !next.querySelector('select[id*="year" i], select[name*="year" i]')) container.setAttribute('data-reference-date', day);
-      const week = root.LichHocFptParser.readDocument(next, { allowEmpty: true });
+      const week = root.LichHocFptParser.readDocument(next, { allowEmpty: true, requestedWeek: day, trustedPartial: /\/WeeklyTimetable\/WeekPartial\/?$/i.test(finalUrl.pathname) });
       // The parser validates every displayed date against the requested reference.
       if (next.querySelector('form')) current = next;
       return week;

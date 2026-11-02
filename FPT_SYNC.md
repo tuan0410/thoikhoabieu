@@ -52,3 +52,7 @@ Tiện ích không đọc mật khẩu, cookie/token FAP hoặc thông tin đăn
 - Tài liệu FPT Quy Nhơn về FAP và FU–Quy Nhơn (2021, đối chiếu giao diện hiện hành): https://lmsqn.fpt.edu.vn/hd/wp-content/uploads/2021/09/HUONG-DAN-CNTT-FPTU.QN-09.2021.pdf
 - Hướng dẫn FAP chính thức: https://daihoc.fpt.edu.vn/tin-tuc-chung-2/huong-dan-su-dung-cong-thong-tin-dao-tao-fap-cho-tan-sinh-vien-dai-hoc-fpt/
 - Tham khảo cấu trúc DOM từ dự án cộng đồng, không phải API chính thức: https://github.com/yunkhngn/fptu-schedule/blob/main/content.js
+
+## Cập nhật 0.4.3
+
+Đọc cả kỳ tiếp tục qua tuần chưa được xếp lịch: chấp nhận phản hồi WeekPartial trống hoặc thông báo không có lịch cho đúng tuần yêu cầu. Tuần đó hiển thị 0 buổi trong bản xem trước. Trang đăng nhập, lỗi máy chủ hoặc nội dung lớp chưa nhận diện vẫn dừng để tránh mất lịch. Khi xác nhận gửi, lịch FPT cũ trong tuần được xác nhận trống sẽ được xóa; lịch tay và nguồn khác được giữ. Chưa kiểm chứng trực tiếp trên tài khoản FAP thật. Tải gói mới, giải nén thay thư mục tiện ích, Reload rồi tải lại trang Lịch Học và FAP.
