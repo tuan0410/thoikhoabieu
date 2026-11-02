@@ -7,13 +7,15 @@
   }
   function paint() {
     var button = document.getElementById('installBtn');
-    if (button) button.hidden = installed();
+    if (button) button.hidden = !!window.LHNative;
+    var pwaButton = document.getElementById('pwaInstallBtn');
+    if (pwaButton) pwaButton.hidden = installed();
   }
   LH.pwa = {
     init: function () {
       var dialog = document.getElementById('installDialog');
       var help = document.getElementById('installHelp');
-      document.getElementById('installBtn').addEventListener('click', async function () {
+      document.getElementById('pwaInstallBtn')?.addEventListener('click', async function () {
         if (installPrompt) {
           var prompt = installPrompt; installPrompt = null;
           try { await prompt.prompt(); await prompt.userChoice; }
@@ -33,7 +35,7 @@
       window.addEventListener('beforeinstallprompt', function (event) {
         event.preventDefault(); installPrompt = event; paint();
       });
-      window.addEventListener('appinstalled', function () { installPrompt = null; document.getElementById('installBtn').hidden = true; dialog.close(); });
+      window.addEventListener('appinstalled', function () { installPrompt = null; paint(); dialog.close(); });
       paint();
       if (!window.LHNative && 'serviceWorker' in navigator && window.isSecureContext) {
         navigator.serviceWorker.register('/sw.js').catch(function (error) { console.warn('Không đăng ký được PWA:', error.message); });

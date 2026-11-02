@@ -296,7 +296,7 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
         if (req.method === 'HEAD') return res.end();
         return fs.createReadStream(archive).pipe(res);
       }
-      if (!(/^\/(index\.html|offline\.html|style\.css|sw\.js|manifest\.webmanifest)$/.test(name) || /^\/icons\/(icon-192|icon-512|icon-maskable-512|apple-touch-icon)\.png$/.test(name) || /^\/js\/(?:views\/)?[a-z-]+\.js$/.test(name))) fail(404, 'Không tìm thấy trang.');
+      if (!(/^\/(index\.html|download\.html|offline\.html|style\.css|sw\.js|manifest\.webmanifest)$/.test(name) || /^\/icons\/(icon-192|icon-512|icon-maskable-512|apple-touch-icon)\.png$/.test(name) || /^\/js\/(?:views\/)?[a-z-]+\.js$/.test(name))) fail(404, 'Không tìm thấy trang.');
       const file = path.join(ROOT, name.slice(1));
       if (!fs.existsSync(file)) fail(404, 'Không tìm thấy trang.');
       const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.webmanifest': 'application/manifest+json', '.png': 'image/png' }[path.extname(file)];

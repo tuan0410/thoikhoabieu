@@ -4,6 +4,8 @@ Mã app Capacitor dùng lại giao diện web, gọi backend HTTPS trên Vercel 
 
 ## Luồng sử dụng
 
+Trên web, nút **Cài ứng dụng** mở `/download.html`. Android tải trực tiếp `lichhoc-android.apk` từ release thử nghiệm `android-preview`, không yêu cầu GitHub login hoặc giải nén artifact. Workflow Android cập nhật file này sau khi build thành công trên `main`. iPhone hiện chưa có link TestFlight công khai; khi phát hành, cập nhật mục iPhone trong `download.html` bằng link TestFlight thật. Chức năng cài PWA có nút riêng trên trang tải.
+
 1. Cài app native, đăng nhập tài khoản Lịch Học.
 2. Mở Đồng bộ, chọn trường và phạm vi. FPT có tuần, cả kỳ và lịch thi; UTH hiện có tuần đang mở.
 3. Bấm Kết nối và mở lịch. App mở một WebView cổng trường riêng; sinh viên tự chọn cơ sở/đăng nhập.

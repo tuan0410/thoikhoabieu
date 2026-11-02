@@ -6,8 +6,13 @@ on:
     paths: ['mobile/**', 'js/**', 'extension/**', 'index.html', 'style.css', 'scripts/build-mobile.cjs', 'scripts/build-vercel.cjs', 'scripts/ios-*.py', 'scripts/make_icons.py', '.github/workflows/mobile.yml']
 permissions:
   contents: read
+concurrency:
+  group: mobile-build-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   android:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -29,6 +34,20 @@ jobs:
         with:
           name: lichhoc-android-debug
           path: mobile/android/app/build/outputs/apk/debug/*.apk
+      - name: Publish direct Android preview download
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/lichhoc-android.apk"
+          printf 'Android preview build from commit %s.\n\nSchool login and synchronization still require testing on a real device.\n' "$GITHUB_SHA" > "$RUNNER_TEMP/android-preview-notes.md"
+          if gh release view android-preview --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release edit android-preview --repo "$GITHUB_REPOSITORY" --notes-file "$RUNNER_TEMP/android-preview-notes.md"
+          else
+            gh release create android-preview --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Lich Hoc Android Preview' --notes-file "$RUNNER_TEMP/android-preview-notes.md" --prerelease --latest=false
+          fi
+          gh release upload android-preview "$RUNNER_TEMP/lichhoc-android.apk" --repo "$GITHUB_REPOSITORY" --clobber
   ios:
     runs-on: macos-latest
     timeout-minutes: 25

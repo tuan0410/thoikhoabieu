@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2E49D0">
+  <title>Tải ứng dụng · Lịch Học</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="download-page">
+  <main class="download-content">
+    <a class="text-btn" href="/">← Quay lại Lịch Học</a>
+    <header class="download-intro">
+      <img src="/icons/icon-192.png" width="72" height="72" alt="" class="download-logo">
+      <span class="eyebrow">Lịch của bạn, trên mọi thiết bị</span>
+      <h1>Cài Lịch Học</h1>
+      <p class="muted">Dùng chung tài khoản để xem và quản lý lịch trên web, Android và iPhone.</p>
+    </header>
+    <div class="download-grid">
+      <section class="card" aria-labelledby="androidTitle">
+        <span class="pill">Bản thử nghiệm</span>
+        <h2 id="androidTitle">Android</h2>
+        <p>Tải app có bộ đọc lịch trường tích hợp. Không cần cài tiện ích trình duyệt riêng.</p>
+        <a class="btn download-action" id="androidDownload" href="https://github.com/tuan0410/thoikhoabieu/releases/download/android-preview/lichhoc-android.apk">Tải ứng dụng Android (.apk)</a>
+        <p class="muted">Tải trực tiếp file APK, không cần giải nén hoặc tài khoản GitHub.</p>
+        <details>
+          <summary>Cách cài trên Android</summary>
+          <ol><li>Bấm nút tải ở trên và chờ tải xong.</li><li>Mở file <b>lichhoc-android.apk</b> trong mục Tải xuống.</li><li>Nếu điện thoại hỏi quyền cài ứng dụng từ nguồn này, mở Cài đặt và cấp quyền cho ứng dụng đang mở file.</li><li>Quay lại, bấm Cài đặt rồi mở Lịch Học.</li></ol>
+        </details>
+      </section>
+      <section class="card" aria-labelledby="iphoneTitle">
+        <span class="pill">Đang chuẩn bị</span>
+        <h2 id="iphoneTitle">iPhone / iPad</h2>
+        <p>Bản iPhone sẽ được cài qua TestFlight sau khi hoàn tất ký và phát hành bản thử.</p>
+        <button class="btn download-action" disabled>Chưa có bản iPhone để tải</button>
+        <p class="muted">Liên kết cài đặt sẽ xuất hiện tại đây khi sẵn sàng. File APK chỉ dành cho Android.</p>
+      </section>
+    </div>
+    <section class="card download-web" aria-labelledby="webTitle">
+      <h2 id="webTitle">Cài bản web lên màn hình chính</h2>
+      <p>Dùng nhanh trên điện thoại, không cần tải APK. Bản web/PWA xem được lịch đã lưu; đọc trực tiếp cổng trường cần bản app có bộ đọc tích hợp.</p>
+      <button class="text-btn" id="pwaInstallBtn" type="button">Cài bản web (PWA)</button>
+      <a class="text-btn" href="/">Tiếp tục dùng trên web</a>
+    </section>
+    <p class="muted">Bộ đọc lịch đang được thử nghiệm. Khả năng đăng nhập và đồng bộ phụ thuộc cổng trường; đăng nhập Google có thể bị chặn trong app.</p>
+  </main>
+  <dialog class="install-dialog" id="installDialog" aria-labelledby="installTitle">
+    <h2 id="installTitle">Cài bản web Lịch Học</h2>
+    <p id="installHelp"></p>
+    <button class="btn" type="button" id="closeInstallDialog">Đã hiểu</button>
+  </dialog>
+  <script defer src="/js/pwa.js"></script>
+  <script defer src="/js/download.js"></script>
+</body>
+</html>

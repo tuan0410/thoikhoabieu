@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
 // Publish only application assets; never copy the repository or database directory.
-const assets = ['index.html', 'offline.html', 'style.css', 'sw.js', 'manifest.webmanifest'];
+const assets = ['index.html', 'download.html', 'offline.html', 'style.css', 'sw.js', 'manifest.webmanifest'];
 for (const folder of ['js', 'icons']) {
   function collect(directory) {
     for (const entry of fs.readdirSync(path.join(root, directory), { withFileTypes: true })) {
