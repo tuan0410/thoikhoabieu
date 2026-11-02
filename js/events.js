@@ -113,6 +113,7 @@
       } else if (form.id === 'examsForm') {
         kind = 'exams';
         item = { c: val('c'), day: val('examDay'), time: val('examTime'), dur: Number(val('duration')), room: val('examRoom'), form: val('examForm') };
+        if (LH.editItem('exams').provider) item.provider = LH.editItem('exams').provider;
       } else {
         kind = 'tasks';
         var previous = LH.editItem('tasks');

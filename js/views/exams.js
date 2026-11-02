@@ -20,7 +20,7 @@
     }).join("");
 
     if (!rows) return '<section class="intro"><h2>Lịch kiểm tra và thi</h2></section><div class="empty">Bạn chưa thêm lịch kiểm tra. <a href="#quan-ly" data-go="quan-ly">Thêm lịch</a></div>';
-    return '<section class="intro"><span class="eyebrow">Lịch cá nhân</span><h2>Lịch kiểm tra và thi</h2><span class="muted">Lịch do bạn nhập. Hãy đối chiếu với thông báo chính thức của trường.</span><a href="#quan-ly" data-go="quan-ly">Thêm hoặc sửa lịch kiểm tra</a></section>' +
+    return '<section class="intro"><span class="eyebrow">Lịch cá nhân</span><h2>Lịch kiểm tra và thi</h2><span class="muted">Gồm lịch nhập tay và lịch đã đồng bộ. Hãy đối chiếu với thông báo chính thức của trường.</span><a href="#quan-ly" data-go="quan-ly">Thêm hoặc sửa lịch kiểm tra</a></section>' +
       '<div class="card lift"><div class="table-wrap"><table><thead><tr><th>Môn thi</th><th>Ngày</th><th>Giờ</th><th>Phòng</th><th>Hình thức</th><th>Còn lại</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
   };
 })(window.LH = window.LH || {});

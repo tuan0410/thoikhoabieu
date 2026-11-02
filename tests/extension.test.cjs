@@ -50,4 +50,9 @@ test('Tiện ích: chỉ kết nối đúng web, đúng tab UTH, không gửi co
   assert.ok((await send('IMPORT', { schoolId: 'uth' }, fap)).error);
   assert.equal((await send('IMPORT', { schoolId: 'fpt-qn' }, fap)).result.summary.count, 1);
   assert.equal(requests[1].url, 'http://localhost:3000/api/sync/fpt-qn/import');
+  await send('CONNECT', fptTicket, app);
+  assert.ok((await send('IMPORT', { schoolId: 'fpt-qn', mode: 'exams' }, fap)).error);
+  const examPage = { ...fap, url: 'https://fap.fpt.edu.vn/ExamSchedule' };
+  assert.ok((await send('IMPORT', { schoolId: 'fpt-qn' }, examPage)).error);
+  assert.equal((await send('IMPORT', { schoolId: 'fpt-qn', mode: 'exams' }, examPage)).result.summary.count, 1);
 });

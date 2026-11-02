@@ -48,6 +48,9 @@ test('URL lịch hiện đại chỉ gọi FAP và chọn tuần yêu cầu', ()
   const doc = { querySelector: () => ({ value: '2026-W45' }), getElementById: () => null };
   const request = requestFor(doc, 'https://fap.fpt.edu.vn/WeeklyTimetable', '2026-11-09');
   assert.equal(new URL(request.url).searchParams.get('week'), '2026-W46');
+  assert.equal(new URL(request.url).pathname, '/WeeklyTimetable/WeekPartial');
+  assert.equal(new URL(request.url).searchParams.get('referenceDate'), '2026-11-09');
+  assert.equal(request.options.headers['X-Requested-With'], 'XMLHttpRequest');
   assert.throws(() => requestFor(doc, 'https://evil.example/WeeklyTimetable', '2026-11-09'), /FAP chính thức/);
 });
 

@@ -68,7 +68,7 @@
     let referenceDate = container?.getAttribute('data-reference-date') || container?.getAttribute('data-date') || null;
     if (/^20\d{2}-\d{2}-\d{2}(?:T|$)/.test(referenceDate || '')) referenceDate = referenceDate.slice(0, 10);
     const week = doc.querySelector('input[type="week"]')?.value;
-    if (!referenceDate && /^20\d{2}-W\d{2}$/.test(week || '')) {
+    if (/^20\d{2}-W\d{2}$/.test(week || '')) {
       const january4 = new Date(Date.UTC(+week.slice(0, 4), 0, 4));
       january4.setUTCDate(january4.getUTCDate() - (january4.getUTCDay() || 7) + 1 + (+week.slice(6) - 1) * 7);
       referenceDate = january4.toISOString().slice(0, 10);

@@ -114,7 +114,7 @@ test('Chọn FPT Quy Nhơn hiển thị đúng link FAP và hướng dẫn cơ s
   LH.sync.init();
   handlers.change({ target: { id: 'syncSchool', value: 'fpt-qn' } });
   const html = LH.sync.view();
-  assert.match(html, /Kết nối và mở lịch FPT Quy Nhơn/);
+  assert.match(html, /Kết nối và mở lịch FUQN/);
   assert.match(html, /href="https:\/\/fap.fpt.edu.vn\/"/);
   assert.match(html, /FU–Quy Nhơn/);
   assert.ok(!html.includes('Kết nối và mở lịch UTH'));
