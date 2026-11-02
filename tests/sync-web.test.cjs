@@ -40,3 +40,14 @@ test('Native app connection opens its reader without requiring extension or sync
   assert.equal(school, 'uth');
   assert.equal(calls.length, 0);
 });
+
+test('Phone web explains the native app requirement without issuing extension messages or tickets', async () => {
+  const { LH, calls, click } = setup('0.0.0');
+  let explanation;
+  LH.mobile = { available: () => false, phoneBrowser: () => true };
+  LH.notice = message => { explanation = message; };
+  await click();
+  assert.equal(calls.length, 0);
+  assert.match(explanation, /web\/PWA/);
+  assert.match(explanation, /Android\/iPhone/);
+});

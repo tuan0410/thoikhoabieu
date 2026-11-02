@@ -2,6 +2,10 @@
   'use strict';
   var preview = null, owner = null, values = {}, saving = false;
   function native() { return !!window.LHNative?.available(); }
+  function phoneBrowser() {
+    if (native() || typeof navigator === 'undefined') return false;
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
   function fields(school) {
     if (!values[school]) {
       var start = LH.state.data?.settings?.start || '', end = new Date(start + 'T00:00:00Z');
@@ -12,6 +16,7 @@
   }
   LH.mobile = {
     available: native,
+    phoneBrowser: phoneBrowser,
     reset: function () { preview = null; owner = null; values = {}; },
     async connect(school) {
       if (!native()) throw new Error('Đồng bộ trực tiếp trên điện thoại cần bản app Android/iPhone. PWA không đọc được tab cổng trường.');
@@ -28,7 +33,7 @@
       LH.notice('Đã đọc lịch. Kiểm tra bản xem trước rồi bấm Lưu vào tài khoản.');
     },
     view: function (school) {
-      if (!native()) return '<section class="card"><h2>Đồng bộ trên điện thoại</h2><p>Bản app Android/iPhone có bộ đọc cổng trường tích hợp. Bản web/PWA vẫn dùng chung tài khoản và lịch đã lưu. Bản app đang trong giai đoạn kiểm thử, chưa có gói phát hành.</p></section>';
+      if (!native()) return '<section class="card"><h2>Đồng bộ trên điện thoại</h2><p>Bản app Android/iPhone có bộ đọc cổng trường tích hợp. Bản web/PWA vẫn dùng chung tài khoản và lịch đã lưu, nhưng chưa đọc trực tiếp được tab cổng trường. App hiện ở giai đoạn thử nghiệm, chưa có liên kết cài đặt công khai.</p></section>';
       var v = fields(school), e = LH.esc;
       var html = '<section class="card"><h2>Nhập lịch từ điện thoại</h2><p>Tự đăng nhập tại cổng trường trong app, mở lịch rồi bấm Đọc lịch ở thanh trên cùng. Dữ liệu chỉ được lưu sau khi bạn xác nhận.</p><div class="field"><label for="mobileMode">Phạm vi</label><select id="mobileMode" data-mobile-field="mode"><option value="week"' + (v.mode === 'week' ? ' selected' : '') + '>Tuần đang mở</option>' + (school === 'fpt-qn' ? '<option value="semester"' + (v.mode === 'semester' ? ' selected' : '') + '>Cả học kỳ</option><option value="exams"' + (v.mode === 'exams' ? ' selected' : '') + '>Lịch thi đang hiển thị</option>' : '') + '</select></div>';
       if (v.mode === 'semester') html += '<div class="field"><label for="mobileStart">Thứ hai đầu kỳ</label><input id="mobileStart" type="date" data-mobile-field="start" value="' + e(v.start) + '"></div><div class="field"><label for="mobileEnd">Chủ nhật cuối kỳ</label><input id="mobileEnd" type="date" data-mobile-field="end" value="' + e(v.end) + '"></div>';

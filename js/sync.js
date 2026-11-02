@@ -82,6 +82,7 @@
             action.disabled = true;
             LH.render();
             if (LH.mobile?.available()) { await LH.mobile.connect(selected); return; }
+            if (LH.mobile?.phoneBrowser()) throw new Error('Bạn đang dùng web/PWA trên điện thoại. Để đọc lịch trường trực tiếp, hãy dùng bản app Android/iPhone có bộ đọc tích hợp. Điện thoại không cần cài tiện ích máy tính.');
             var extension = await bridge('PING');
             var minimum = location.origin === 'https://schedule-information.vercel.app' ? '0.4.2' : requestedSchoolId === 'fpt-qn' ? '0.4.0' : '0.1.0';
             if (!versionAtLeast(extension?.version, minimum)) throw new Error('Hãy cài tiện ích ' + minimum + ' trở lên, tải lại tiện ích rồi tải lại trang này.');
