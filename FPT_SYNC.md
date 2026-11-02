@@ -4,13 +4,15 @@
 
 ### Cập nhật 0.4.0: đọc lịch thi ExamSchedule
 
+**Sửa lỗi 0.4.1:** lấy tất cả các dòng lịch thi khác nhau trong bảng, cho phép nhiều ca cùng mã môn/loại thi. Khóa nhận diện gồm mã môn, loại thi, ngày, giờ, thời lượng và phòng; chỉ bỏ dòng giống hệt. Nhập lại cùng bảng không tạo trùng. Vì chưa có mã định danh lịch thi ổn định từ FAP, thay đổi ngày/giờ/phòng được giữ như một lịch riêng, không tự xóa lịch cũ để tránh mất ca thi khác. Bản ghi cũ kiểu 0.4.0 chỉ được chuyển sang khóa mới khi khớp chính xác một ca đang nhập.
+
 Cài/Reload tiện ích 0.4.0, khởi động lại máy chủ và tải lại tab ứng dụng/FAP. Kết nối FPT Quy Nhơn từ web Lịch Học; trong **chính tab FAP vừa mở**, bấm liên kết **Mở lịch thi FAP** ở bảng tiện ích để tới `/ExamSchedule`. Bấm **Đọc lịch thi** → kiểm tra mã môn, ngày, giờ, thời lượng, phòng, loại thi → **Gửi về Lịch Học**. Kết quả xuất hiện trong **Lịch kiểm tra và thi**.
 
 Mỗi vé chỉ nhập một lần. Nếu đã gửi lịch học trước đó, hãy kết nối lại để lấy vé mới trước khi đọc/gửi lịch thi. Không mở lịch thi ở tab khác với tab do nút Kết nối mở ra.
 
 Parser nhận diện tiêu đề hoặc `data-label` của bảng tiếng Việt/Anh. Ngày phải có năm; giờ cần khoảng bắt đầu/kết thúc hoặc giờ bắt đầu kèm thời lượng rõ ràng. Lịch TBA/chưa đủ giờ sẽ báo dòng lỗi, không tự đoán. Đọc phần đang hiển thị; chưa tự đi qua phân trang hoặc đổi bộ lọc.
 
-Máy chủ thêm/cập nhật theo mã môn và bộ loại/kỳ/hình thức thi, không theo ngày/giờ, để nhận thay đổi ngày/giờ/phòng. Nếu có nhiều lịch cùng khóa nhưng khác nội dung, dừng nhập thay vì gộp nhầm. Giữ lịch học, lịch thi nhập tay và các lịch thi cũ không có trong bản nhập; chưa tự nhận biết lịch đã hủy.
+Máy chủ lưu riêng từng ca thi theo quy tắc 0.4.1 ở trên. Giữ lịch học, lịch thi nhập tay và các lịch thi cũ không có trong bản nhập; chưa tự nhận biết lịch đã hủy.
 
 **Chưa kiểm chứng trên phiên FAP thật** vì trang trả 403 với công cụ đọc web. Nếu lỗi nhận diện, bấm **Xuất mẫu chẩn đoán lịch thi** trên trang ExamSchedule. File JSON chỉ có cấu trúc cột, nhãn đã chuẩn hóa và các giá trị ngày/giờ định dạng rõ ràng; không chứa tên/mã môn, phòng, mã sinh viên, mật khẩu, cookie, token hoặc HTML toàn trang. Có thể gửi file JSON hoặc mở file và dán nội dung vào chat; không cần ảnh.
 

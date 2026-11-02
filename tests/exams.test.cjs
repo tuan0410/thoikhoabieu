@@ -15,7 +15,7 @@ test('Lịch thi: đọc ngày, giờ, thời lượng, loại thi; chặn ngày
   assert.throws(() => parser.parse([{ ...fixture()[0], time: 'TBA' }]), /Không đoán/);
   assert.throws(() => parser.parse([{ ...fixture()[0], date: '31/02/2026' }]), /ngày thi/);
   const input = fixture(); input.push({ ...input[0], date: '22/11/2026' });
-  assert.throws(() => parser.parse(input), /nhiều lịch/);
+  assert.equal(parser.parse(input).exams.length, 2);
   assert.equal(parser.parse([{ ...fixture()[0], time: '08:00', duration: '120' }]).exams[0].dur, 120);
 });
 test('Đọc bảng theo tiêu đề VN hoặc data-label, mẫu chẩn đoán không chứa nội dung cá nhân', () => {
@@ -32,15 +32,28 @@ test('Đọc bảng theo tiêu đề VN hoặc data-label, mẫu chẩn đoán k
   assert.ok(!json.includes('Programming Fundamentals'));
   assert.match(json, /21\/11\/2026/);
 });
-test('Nhập lại lịch thi đổi ngày/giờ/phòng cập nhật đúng mục; giữ lịch học và lịch thi nhập tay', () => {
+
+test('Lấy mọi môn và nhiều ca cùng môn/loại thi, chỉ bỏ dòng giống hệt', () => {
+  const base = fixture()[0];
+  const input = [base, { ...base, date: '22/11/2026' }, { ...base, time: '10:00-11:30' },
+    { ...base, room: 'B1' }, { ...base, course: 'MAE101 - Mathematics' }, { ...base }];
+  const snapshot = parser.parse(input);
+  assert.equal(snapshot.exams.length, 5);
+  const first = mergeSchoolSchedule(emptyData(), snapshot, 'fpt-qn');
+  assert.equal(first.summary.count, 5);
+  assert.equal(first.data.exams.length, 5);
+  assert.equal(first.data.courses.length, 2);
+  assert.equal(mergeSchoolSchedule(first.data, snapshot, 'fpt-qn').data.exams.length, 5);
+});
+test('Các lịch khác ngày/giờ/phòng được giữ riêng; nhập lại không trùng và giữ lịch tay', () => {
   const first = mergeSchoolSchedule(emptyData(), parser.parse(fixture()), 'fpt-qn').data;
   first.exams.push({ id: 'manual', c: first.courses[0].id, day: '2026-11-20', time: '07:00', dur: 60, room: '', form: 'Nhập tay' });
   first.sessions.push({ id: 'class', c: first.courses[0].id, d: 1, s: '07:00', e: '09:00', room: 'A1', type: 'Lý thuyết' });
   const changed = fixture(); changed[0].date = '23/11/2026'; changed[0].time = '10:00-11:30'; changed[0].room = 'B1';
   const next = mergeSchoolSchedule(first, parser.parse(changed), 'fpt-qn').data;
-  assert.equal(next.exams.length, 2);
-  assert.equal(next.exams.find(x => x.provider === 'fpt-qn').day, '2026-11-23');
-  assert.equal(next.exams.find(x => x.provider === 'fpt-qn').room, 'B1');
+  assert.equal(next.exams.length, 3);
+  assert.ok(next.exams.some(x => x.day === '2026-11-23' && x.room === 'B1'));
+  assert.equal(mergeSchoolSchedule(next, parser.parse(changed), 'fpt-qn').data.exams.length, 3);
   assert.ok(next.exams.some(x => x.id === 'manual'));
   assert.equal(next.sessions.length, 1);
 });
@@ -56,14 +69,17 @@ test('API lưu lịch thi vào tài khoản, giữ nguồn qua trình sửa và 
   }
   await api('auth/register', 'POST', { name: 'Exam Test', email: 'exams@example.test', password: 'a-test-password' });
   const ticket = (await api('sync/ticket', 'POST', { schoolId: 'fpt-qn' })).data.ticket;
-  const payload = parser.parse(fixture());
+  const input = fixture(); input.push({ ...input[0], date: '22/11/2026' });
+  const payload = parser.parse(input);
   const invalid = structuredClone(payload); invalid.exams[0].dur = 0;
   assert.equal((await api('sync/fpt-qn/import', 'POST', invalid, ticket)).status, 400);
   assert.equal((await api('data')).data.data.exams.length, 0);
   const result = await api('sync/fpt-qn/import', 'POST', payload, ticket);
   assert.equal(result.status, 200);
   assert.equal(result.data.summary.mode, 'exams');
+  assert.equal(result.data.summary.count, 2);
   const saved = (await api('data')).data;
+  assert.equal(saved.data.exams.length, 2);
   assert.equal(saved.data.exams[0].provider, 'fpt-qn');
   assert.equal((await api('data', 'PUT', saved)).status, 200);
   assert.equal((await api('data')).data.data.exams[0].provider, 'fpt-qn');

@@ -13,7 +13,7 @@
   function fail(message) { throw new Error(message); }
   function parse(records) {
     if (!Array.isArray(records) || !records.length) fail('Không có dòng lịch thi để nhập.');
-    const exams = [], seen = new Map();
+    const exams = [], seen = new Set();
     records.forEach((row, index) => {
       const prefix = 'Dòng lịch thi ' + (index + 1) + ': ';
       const rawDate = text(row.date);
@@ -36,11 +36,9 @@
       if (!Number.isInteger(duration) || duration <= 0 || duration > 600 || start + duration > 1440) fail(prefix + 'thời lượng thi không hợp lệ.');
       const form = [row.type, row.exam, row.form].map(text).filter(Boolean).join(' · ');
       if (!form) fail(prefix + 'thiếu loại/kỳ/hình thức thi để phân biệt các lần thi.');
-      const identity = code + '|' + form;
       const exam = { code, name: course, day, time: String(Math.floor(start / 60)).padStart(2, '0') + ':' + String(start % 60).padStart(2, '0'), dur: duration, room: text(row.room).replace(/^[-–—]$/, ''), form };
-      const previous = seen.get(identity);
-      if (previous && JSON.stringify(previous) !== JSON.stringify(exam)) fail(prefix + 'nhiều lịch cùng mã môn/loại thi; chưa xác định được lịch nào cần cập nhật.');
-      if (!previous) { seen.set(identity, exam); exams.push(exam); }
+      const identity = JSON.stringify([code, form, day, exam.time, duration, exam.room]);
+      if (!seen.has(identity)) { seen.add(identity); exams.push(exam); }
     });
     return { mode: 'exams', schoolId: 'fpt-qn', complete: true, exams };
   }

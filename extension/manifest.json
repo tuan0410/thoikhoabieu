@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lịch Học · UTH & FPT Quy Nhơn (Demo)",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Đọc lịch tuần UTH hoặc FAP FPT Quy Nhơn và gửi bản xem trước về tài khoản Lịch Học.",
   "minimum_chrome_version": "102",
   "permissions": ["storage"],
