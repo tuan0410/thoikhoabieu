@@ -42,7 +42,7 @@ public class LichHocPortalPlugin extends Plugin {
         if (portal == null || portal.getUrl() == null) return false;
         Uri u = Uri.parse(portal.getUrl());
         if (!navigationAllowed(portal.getUrl()) || !host.equals(u.getHost())) return false;
-        String p = u.getPath(), mode = options.optString("mode");
+        String p = u.getPath() == null ? "" : u.getPath(), mode = options.optString("mode");
         if ("portal.ut.edu.vn".equals(host)) return "week".equals(mode) && "/calendar".equals(p.replaceAll("/$", ""));
         return "exams".equals(mode) ? p.matches("(?i)/ExamSchedule/?") : p.matches("(?i).*(/WeeklyTimetable(/.*)?|/ScheduleOfWeek\\.aspx)");
     }

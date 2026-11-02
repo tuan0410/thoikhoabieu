@@ -94,7 +94,12 @@ private final class PortalController: UIViewController, WKNavigationDelegate, WK
     }
     @objc func scan() {
         guard readable() else { status.text = "Hãy đăng nhập và mở đúng lịch. Bấm Lịch trường để chuyển trang."; return }
-        guard let url = Bundle.module.url(forResource: "portal-reader", withExtension: "js"), let source = try? String(contentsOf: url, encoding: .utf8), let encoded = try? JSONSerialization.data(withJSONObject: options), let json = String(data: encoded, encoding: .utf8) else { status.text = "Không tải được bộ đọc lịch."; return }
+        #if SWIFT_PACKAGE
+        let resourceURL = Bundle.module.url(forResource: "portal-reader", withExtension: "js")
+        #else
+        let resourceURL = Bundle(for: PortalController.self).url(forResource: "portal-reader", withExtension: "js") ?? Bundle.main.url(forResource: "portal-reader", withExtension: "js")
+        #endif
+        guard let url = resourceURL, let source = try? String(contentsOf: url, encoding: .utf8), let encoded = try? JSONSerialization.data(withJSONObject: options), let json = String(data: encoded, encoding: .utf8) else { status.text = "Không tải được bộ đọc lịch."; return }
         generation += 1; let run = generation
         readButton.isEnabled = false; status.text = "Đang đọc lịch. Giữ trang mở để đọc đủ các tuần."
         let script = source + "\n;window.__lhResult=null;window.__lhRun=\(run);window.__lhRead(\(json)).then(snapshot=>{if(window.__lhRun===\(run))window.__lhResult={snapshot};}).catch(error=>{if(window.__lhRun===\(run))window.__lhResult={error:String(error.message)};});void 0;"
