@@ -37,7 +37,7 @@
     if (valid.length !== 1) fail('Không xác định chắc chắn tuần và năm của lịch FAP.');
     return valid[0];
   }
-  function parse(records) {
+  function parse(records, options = {}) {
     const days = dates(records.headers, records.year, records.referenceDate);
     const events = [], seen = new Set();
     for (const row of records.rows) {
@@ -58,10 +58,10 @@
         if (!seen.has(key)) { seen.add(key); events.push(event); }
       });
     }
-    if (!events.length) fail('Chưa thấy buổi học trên FAP. Tuần trống sẽ không được nhập để tránh xóa nhầm.');
+    if (!events.length && !(options.allowEmpty && records.rows.length > 0)) fail('Chưa thấy buổi học trên FAP. Không xác nhận được lịch tuần trống.');
     return { schoolId: 'fpt-qn', complete: true, days, events };
   }
-  function readDocument(doc) {
+  function readDocument(doc, options = {}) {
     const yearSelect = doc.querySelector('select[id*="year" i], select[name*="year" i]');
     const year = yearSelect ? Number(yearSelect.value) : null;
     const container = doc.getElementById('weekly-timetable-container');
@@ -75,13 +75,16 @@
     }
     const tables = [...doc.querySelectorAll('table')].sort((a, b) => a.querySelectorAll('table').length - b.querySelectorAll('table').length);
     for (const table of tables) {
-      const headerRows = [...table.querySelectorAll('thead tr')];
+      // ASP.NET tables can place header rows directly in tbody, without a thead.
+      const explicitHeaders = [...table.querySelectorAll('thead tr')];
+      const headerRows = explicitHeaders.length ? explicitHeaders : [...table.querySelectorAll('tr')];
       const headerRow = headerRows.reverse().find(row => [...row.querySelectorAll('th,td')].filter(cell => /\b\d{1,2}\/\d{1,2}\b/.test(cell.textContent)).length === 7);
       if (!headerRow) continue;
       const headers = [...headerRow.querySelectorAll('th,td')].map(cell => text(cell.textContent)).filter(value => /\b\d{1,2}\/\d{1,2}\b/.test(value));
       const rows = [];
-      for (const row of table.querySelectorAll('tbody tr')) {
-        const cells = [...row.children].filter(cell => /^(TD|TH)$/.test(cell.tagName));
+      const bodyRows = [...table.querySelectorAll('tbody tr')];
+      for (const row of bodyRows.length ? bodyRows : table.querySelectorAll('tr')) {
+        const cells = [...(row.children || [])].filter(cell => /^(TD|TH)$/.test(cell.tagName));
         if (!cells.length || !/^(?:slot\s*)?\d+\b/i.test(text(cells[0].textContent))) continue;
         if (cells.length !== 8) fail('Bảng FAP có cột gộp hoặc cấu trúc chưa được hỗ trợ.');
         rows.push(cells.slice(1).map(cell => {
@@ -92,7 +95,7 @@
           return { text: cell.innerText || cell.textContent, title: titleTexts[0] || '', room: room?.textContent || '' };
         }));
       }
-      return parse({ headers, year, referenceDate, rows });
+      return parse({ headers, year, referenceDate, rows }, options);
     }
     fail('Không tìm thấy bảng Weekly timetable của FAP. Hãy mở lịch tuần và chờ tải xong.');
   }

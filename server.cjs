@@ -40,7 +40,7 @@ function cleanData(input) {
     name: text(settings.name, 80), school: text(settings.school, 160, false),
     start, weeks: integer(settings.weeks, 1, 52)
   } };
-  for (const [key, limit] of [['courses', 100], ['sessions', 500], ['exams', 500], ['tasks', 1000]]) {
+  for (const [key, limit] of [['courses', 100], ['sessions', 3000], ['exams', 500], ['tasks', 1000]]) {
     if (!Array.isArray(input[key]) || input[key].length > limit) fail(400, 'Danh sách quá dài hoặc không hợp lệ.');
   }
   function idList(rows, transform) {

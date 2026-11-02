@@ -1,5 +1,7 @@
 # Lịch Học · UTH & FPT Quy Nhơn (Demo 0.2.0)
 
+**0.3.0:** FPT hỗ trợ nút **Đọc cả học kỳ** với ngày bắt đầu/kết thúc, tiến độ và hủy. Cần khởi động lại máy chủ để nhận batch học kỳ. Nếu đọc lỗi một tuần sẽ không gửi dữ liệu. UTH vẫn đọc từng tuần. Chưa xác nhận hoạt động trên phiên FAP thật.
+
 Để dùng FPT Quy Nhơn: cài hoặc Reload tiện ích này, tải lại web Lịch Học, chọn FPT Quy Nhơn để mở https://fap.fpt.edu.vn/. Chọn FU–Quy Nhơn, tự đăng nhập và vào Weekly timetable. Bấm Đọc lịch tuần → kiểm tra → Gửi về Lịch Học. Không nhập lịch thi, không đoán giờ từ slot; chưa kiểm chứng trên tài khoản FAP thật. Hướng dẫn UTH bên dưới vẫn áp dụng.
 
 1. Chạy web bằng `npm.cmd start` ở thư mục dự án, mở http://localhost:3000 và đăng nhập.

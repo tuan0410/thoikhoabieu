@@ -60,6 +60,19 @@ test('Hai nguồn trường không xóa lẫn nhau; FPT nhập lại không tạ
   assert.ok(data.sessions.some(s => s.provider === 'fpt-qn'));
   assert.equal(data.settings.school, 'FPT Quy Nhơn');
 });
+
+test('Bảng FAP không có thead vẫn nhận được tiêu đề ngày trong tbody', () => {
+  const data = fixture();
+  const headers = data.headers.map(value => ({ textContent: value }));
+  const header = { querySelectorAll: () => headers, children: [] };
+  const cells = [{ tagName: 'TD', textContent: 'Slot 1' }, ...data.rows[0].map(cell => ({
+    tagName: 'TD', textContent: cell.text, querySelectorAll: () => [], querySelector: () => null
+  }))];
+  const row = { children: cells, querySelectorAll: () => cells };
+  const table = { querySelectorAll: selector => selector === 'table' || selector === 'thead tr' ? [] : [header, row] };
+  const doc = { getElementById: () => null, querySelectorAll: () => [table], querySelector: selector => selector.startsWith('select') ? { value: '2026' } : null };
+  assert.deepEqual(readDocument(doc), parse(data));
+});
 test('API FPT cấp vé đúng trường, chặn vé UTH và lưu metadata FPT qua trình sửa thường', async t => {
   const server = createApp({ dbPath: ':memory:' });
   server.listen(0, '127.0.0.1'); await once(server, 'listening');
@@ -90,4 +103,15 @@ test('API FPT cấp vé đúng trường, chặn vé UTH và lưu metadata FPT q
   assert.equal((await api('data', 'PUT', saved.data)).status, 200);
   assert.equal((await api('data')).data.data.sessions[0].provider, 'fpt-qn');
   assert.equal((await api('sync/status')).data.lastSync.schoolId, 'fpt-qn');
+  const batchTicket = (await api('sync/ticket', 'POST', { schoolId: 'fpt-qn' })).data.ticket;
+  const first = parse(fixture());
+  const second = { ...first, days: first.days.map(day => { const d = new Date(day + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + 7); return d.toISOString().slice(0, 10); }), events: [] };
+  const batch = { schoolId: 'fpt-qn', mode: 'semester', complete: true, weeks: [first, second] };
+  const invalid = structuredClone(batch); invalid.weeks[1].days[0] = '2026-11-10';
+  const before = (await api('data')).data;
+  assert.equal((await api('sync/fpt-qn/import', 'POST', invalid, batchTicket)).status, 400);
+  assert.deepEqual((await api('data')).data, before);
+  const imported = await api('sync/fpt-qn/import', 'POST', batch, batchTicket);
+  assert.equal(imported.status, 200);
+  assert.equal(imported.data.summary.weeks, 2);
 });
