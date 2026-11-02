@@ -18,3 +18,9 @@ mobile/android/
 mobile/ios/
 mobile/portal/android/src/main/assets/
 mobile/portal/ios/Sources/LichHocPortal/Resources/
+.signing/
+signing-request/
+mobile/ios-output/
+*.p12
+*.p8
+*.mobileprovision

@@ -1,0 +1,29 @@
+name: Prepare iPhone signing request
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  csr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Generate encrypted key and certificate request
+        env:
+          IOS_SIGNING_KEY_PASSWORD: ${{ secrets.IOS_SIGNING_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ "${#IOS_SIGNING_KEY_PASSWORD}" -lt 20 ]; then
+            echo 'Set IOS_SIGNING_KEY_PASSWORD in repository Actions secrets (at least 20 characters).'
+            exit 1
+          fi
+          umask 077
+          mkdir -p signing-request
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -aes-256-cbc -pass env:IOS_SIGNING_KEY_PASSWORD -out signing-request/ios-signing-key.pem
+          openssl req -new -sha256 -key signing-request/ios-signing-key.pem -passin env:IOS_SIGNING_KEY_PASSWORD -subj '/CN=Lich Hoc Distribution' -out signing-request/CertificateSigningRequest.certSigningRequest
+          openssl req -in signing-request/CertificateSigningRequest.certSigningRequest -noout -verify
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios-signing-request
+          path: signing-request/
+          retention-days: 7

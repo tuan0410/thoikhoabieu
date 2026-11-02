@@ -39,6 +39,7 @@ def icon(size):
     return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', size, size, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b'')
 
 
-for name, size in [('icon-192.png', 192), ('icon-512.png', 512), ('icon-maskable-512.png', 512), ('apple-touch-icon.png', 180)]:
-    (OUT / name).write_bytes(icon(size))
-    print(f'{name}: {size}x{size}')
+if __name__ == '__main__':
+    for name, size in [('icon-192.png', 192), ('icon-512.png', 512), ('icon-maskable-512.png', 512), ('apple-touch-icon.png', 180)]:
+        (OUT / name).write_bytes(icon(size))
+        print(f'{name}: {size}x{size}')

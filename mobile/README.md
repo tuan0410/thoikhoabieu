@@ -13,6 +13,8 @@ Mã app Capacitor dùng lại giao diện web, gọi backend HTTPS trên Vercel 
 
 ## Build bằng máy phát triển
 
+**Có Apple Developer nhưng chưa có máy Mac:** dùng [hướng dẫn ký và gửi TestFlight trên GitHub Actions](IOS_CLOUD.md). Mã workflow đã có; cần bạn đặt certificate/profile/API key trong GitHub Secrets để ký thật.
+
 Node 24, npm và mạng để tải SDK. Android dùng Android Studio, SDK phù hợp Capacitor 8 và Java 21. iPhone dùng máy Mac có Xcode phù hợp Capacitor 8; bản cài thật cần ký bằng tài khoản Apple. Xem [môi trường Capacitor](https://capacitorjs.com/docs/getting-started/environment-setup).
 
 Trong `mobile`:

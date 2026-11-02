@@ -1,0 +1,58 @@
+name: Build signed iPhone app
+on:
+  workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: 'Upload the signed app to your App Store Connect account'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  signed-ios:
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-latest
+    timeout-minutes: 30
+    env:
+      IOS_SIGNING_KEY_PASSWORD: ${{ secrets.IOS_SIGNING_KEY_PASSWORD }}
+      IOS_SIGNING_KEY_BASE64: ${{ secrets.IOS_SIGNING_KEY_BASE64 }}
+      IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+      IOS_PROFILE_BASE64: ${{ secrets.IOS_PROFILE_BASE64 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - uses: maxim-lobanov/setup-xcode@v1
+        with: { xcode-version: latest-stable }
+      - name: Check signing configuration
+        run: |
+          node -e "for (const key of ['IOS_SIGNING_KEY_PASSWORD','IOS_SIGNING_KEY_BASE64','IOS_CERTIFICATE_BASE64','IOS_PROFILE_BASE64','APPLE_TEAM_ID']) if (!process.env[key]) { console.error('Missing GitHub Actions secret: '+key); process.exitCode=1; }"
+      - run: npm install
+        working-directory: mobile
+      - run: npm run add:ios
+        working-directory: mobile
+      - name: Sign and export device app
+        run: bash scripts/ios-sign.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lichhoc-iphone-appstore
+          path: mobile/ios-output/*.ipa
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload to TestFlight when explicitly selected
+        if: inputs.upload_testflight
+        uses: apple-actions/upload-testflight-build@v5
+        with:
+          app-path: mobile/ios-output/App.ipa
+          issuer-id: ${{ secrets.ASC_ISSUER_ID }}
+          api-key-id: ${{ secrets.ASC_KEY_ID }}
+          api-private-key: ${{ secrets.ASC_PRIVATE_KEY }}
+      - name: Remove temporary signing material
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/lh-keychain-path" ]; then
+            security delete-keychain "$(cat "$RUNNER_TEMP/lh-keychain-path")" || true
+          fi
+          python3 scripts/ios-profile.py cleanup

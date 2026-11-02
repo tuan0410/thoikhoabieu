@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['mobile/**', 'js/**', 'extension/**', 'index.html', 'style.css', 'scripts/build-mobile.cjs', 'scripts/build-vercel.cjs', '.github/workflows/mobile.yml']
+    paths: ['mobile/**', 'js/**', 'extension/**', 'index.html', 'style.css', 'scripts/build-mobile.cjs', 'scripts/build-vercel.cjs', 'scripts/ios-*.py', 'scripts/make_icons.py', '.github/workflows/mobile.yml']
 permissions:
   contents: read
 jobs:
@@ -42,6 +42,11 @@ jobs:
         working-directory: mobile
       - run: npm run add:ios
         working-directory: mobile
+      - name: Validate signing helpers and prepare iOS app icon
+        run: |
+          python3 -m unittest discover -s tests -p 'ios_profile_test.py'
+          python3 scripts/ios-assets.py
+          APPLE_TEAM_ID=TEST123456 LH_PROFILE_UUID=12345678-1234-1234-1234-1234567890ab node scripts/ios-project.cjs --check
       - run: xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
         working-directory: mobile
       - uses: actions/upload-artifact@v4
