@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['mobile/**', 'scripts/build-mobile.cjs', '.github/workflows/mobile.yml']
+    paths: ['mobile/**', 'js/**', 'extension/**', 'index.html', 'style.css', 'scripts/build-mobile.cjs', 'scripts/build-vercel.cjs', '.github/workflows/mobile.yml']
 permissions:
   contents: read
 jobs:

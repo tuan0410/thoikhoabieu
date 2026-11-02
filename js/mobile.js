@@ -57,7 +57,9 @@
           await LH.api('sync/mobile/import', 'POST', snapshot);
           if (LH.state.user?.id !== userId) return;
           preview = null;
-          LH.applyData(await LH.api('data'));
+          var saved = await LH.api('data');
+          if (LH.state.user?.id !== userId) return;
+          LH.applyData(saved);
           await LH.sync.refresh();
           LH.notice('Đã lưu lịch vào tài khoản. Web và app dùng chung dữ liệu.');
         } catch (error) { LH.notice(error.message, true); }

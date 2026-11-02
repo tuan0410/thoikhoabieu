@@ -1,4 +1,4 @@
-const { test } = require('node:test');
+﻿const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
@@ -30,4 +30,13 @@ test('Hosted connection with current extension creates ticket and restores enabl
   assert.deepEqual(calls, [['sync/ticket', 'POST']]);
   assert.ok(LH.syncStatus.pendingUntil > Date.now());
   assert.doesNotMatch(LH.sync.view(), /role="alert"|data-sync-action="connect" disabled/);
+});
+
+test('Native app connection opens its reader without requiring extension or sync ticket', async () => {
+  const { LH, calls, click } = setup('0.0.0');
+  let school;
+  LH.mobile = { available: () => true, connect: async selected => { school = selected.id; } };
+  await click();
+  assert.equal(school, 'uth');
+  assert.equal(calls.length, 0);
 });
