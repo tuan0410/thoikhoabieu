@@ -1,4 +1,4 @@
-# Lịch Học — Personal Timetable and Study Planner
+# Neon — Personal Timetable and Study Planner
 
 A Vietnamese student planner with individual accounts, courses, class schedules, deadlines, exams, an installable PWA, and experimental timetable imports for UTH and FPT Quy Nhơn.
 
@@ -8,7 +8,7 @@ A Vietnamese student planner with individual accounts, courses, class schedules,
 
 ## Overview
 
-Lịch Học brings a student's timetable, assignments, and exam dates into one place. Each new account starts with an empty schedule. Users enter their own school and semester information instead of editing sample data in the source code.
+Neon brings a student's timetable, assignments, and exam dates into one place. Each new account starts with an empty schedule. Users enter their own school and semester information instead of editing sample data in the source code.
 
 The interface uses plain HTML, CSS, and JavaScript. The backend uses Node.js with SQLite locally and Turso/libSQL on Vercel. The remote database driver is installed with npm install. The same interface serves as a Progressive Web App (PWA) for Android and iPhone.
 
@@ -99,12 +99,12 @@ For example, create a course named `Programming`, add a Monday class from `07:00
 1. On desktop, open **Đồng bộ lịch trường** and download the extension ZIP from that page.
 2. Extract it, open `chrome://extensions` or `edge://extensions`, enable **Developer mode**, and choose **Load unpacked**. Select the folder containing `manifest.json`. You can also load the repository's [extension](extension/) directory directly.
 3. If upgrading from the UTH-only extension, replace its files and press **Reload**. FPT requires version **0.2.0** or newer.
-4. Reload Lịch Học, select a school, and click **Kết nối** to open its portal.
-5. Sign in yourself, open the weekly timetable, and click **Đọc lịch tuần** in the Lịch Học panel.
-6. Check the receiving account, subjects, dates, times, and rooms before clicking **Gửi về Lịch Học**.
-7. Return to Lịch Học and select **Kiểm tra lại** or **Xem tuần vừa nhập**.
+4. Reload Neon, select a school, and click **Kết nối** to open its portal.
+5. Sign in yourself, open the weekly timetable, and click **Đọc lịch tuần** in the Neon panel.
+6. Check the receiving account, subjects, dates, times, and rooms before clicking **Gửi về Neon**.
+7. Return to Neon and select **Kiểm tra lại** or **Xem tuần vừa nhập**.
 
-An import ticket lasts ten minutes, can be used once, and is tied to the Lịch Học user, login session, and selected school. The extension does not read or send school passwords, cookies, or authentication tokens. It does not automatically verify the student's identity or FAP campus; users must check the correct account and campus before sending.
+An import ticket lasts ten minutes, can be used once, and is tied to the Neon user, login session, and selected school. The extension does not read or send school passwords, cookies, or authentication tokens. It does not automatically verify the student's identity or FAP campus; users must check the correct account and campus before sending.
 
 The packaged extension connects only to `http://localhost:3000` and `http://127.0.0.1:3000` in the same browser/profile. For a hosted deployment, update its application origins and manifest matches before repackaging it. The ZIP is served at `/downloads/lichhoc-schools-extension.zip`; the earlier UTH URL remains available.
 

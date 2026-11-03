@@ -1,4 +1,4 @@
-# Lịch Học trên Android và iPhone (PWA)
+# Neon trên Android và iPhone (PWA)
 
 Đây là ứng dụng web cài từ trình duyệt, có biểu tượng trên màn hình chính và mở trong cửa sổ riêng. Không cần APK, Google Play hoặc App Store.
 
@@ -8,7 +8,7 @@ Trước tiên cần triển khai máy chủ theo README và mở web bằng **�
 
 - **Android:** mở địa chỉ HTTPS bằng Chrome, đăng nhập, bấm **Cài ứng dụng**. Nếu trình duyệt không hiện hộp thoại, mở menu ⋮ → **Cài đặt ứng dụng** hoặc **Thêm vào màn hình chính**.
 - **iPhone/iPad:** mở địa chỉ HTTPS bằng Safari, bấm **Chia sẻ** → **Thêm vào Màn hình chính** → **Thêm**. Nếu có tùy chọn mở dưới dạng ứng dụng web, bật tùy chọn đó.
-- Sau khi cài, mở từ biểu tượng **Lịch Học**. Có thể cần đăng nhập lại trong ứng dụng đã cài.
+- Sau khi cài, mở từ biểu tượng **Neon**. Có thể cần đăng nhập lại trong ứng dụng đã cài.
 
 Tên tùy chọn có thể thay đổi theo phiên bản/trình duyệt. Nút **Cài ứng dụng** có hướng dẫn tương ứng. Ứng dụng không tự cài thay người dùng.
 

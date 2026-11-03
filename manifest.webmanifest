@@ -1,21 +1,42 @@
 {
   "id": "/",
-  "name": "Lịch Học · Lịch cá nhân",
-  "short_name": "Lịch Học",
+  "name": "Neon · Lịch cá nhân",
+  "short_name": "Neon",
   "description": "Lịch học, bài tập và lịch kiểm tra của bạn, lưu riêng theo tài khoản.",
   "lang": "vi",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#F2F4F1",
-  "theme_color": "#2E49D0",
+  "theme_color": "#6C4AFF",
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/icon-192.png?v=neon1",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png?v=neon1",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png?v=neon1",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
-    { "name": "Thời khóa biểu", "url": "/#thoi-khoa-bieu" },
-    { "name": "Bài tập và deadline", "url": "/#bai-tap" }
+    {
+      "name": "Thời khóa biểu",
+      "url": "/#thoi-khoa-bieu"
+    },
+    {
+      "name": "Bài tập và deadline",
+      "url": "/#bai-tap"
+    }
   ]
 }

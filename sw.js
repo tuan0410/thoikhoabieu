@@ -1,5 +1,5 @@
 'use strict';
-const CACHE = 'lichhoc-shell-v3';
+const CACHE = 'lichhoc-shell-v4-neon';
 // Only public assets belong here. Never cache API responses or account data.
 const SHELL = [
   '/', '/index.html', '/offline.html', '/style.css', '/manifest.webmanifest',

@@ -4,15 +4,15 @@
 
 **Cập nhật 0.2.0:** đã bổ sung **FPT Quy Nhơn**; xem [FPT_SYNC.md](FPT_SYNC.md). Tiện ích chung hỗ trợ UTH và FPT, tách dữ liệu/vé theo trường. Tải bản mới ở `/downloads/lichhoc-schools-extension.zip`; đường dẫn UTH cũ vẫn dùng được.
 
-1. Chạy `npm.cmd start`, mở **http://localhost:3000**, đăng nhập tài khoản Lịch Học.
+1. Chạy `npm.cmd start`, mở **http://localhost:3000**, đăng nhập tài khoản Neon.
 2. Vào **Đồng bộ lịch trường**, chọn **UTH · Đại học Giao thông vận tải TP.HCM**.
 3. Tải ZIP tiện ích từ trang này và giải nén, hoặc dùng thư mục `extension/` trong mã nguồn.
 4. Mở `chrome://extensions` hoặc `edge://extensions`, bật Developer mode, bấm **Load unpacked / Tải tiện ích đã giải nén**, chọn thư mục có `manifest.json`.
-5. Tải lại tab Lịch Học, bấm **Kết nối và mở lịch UTH**.
+5. Tải lại tab Neon, bấm **Kết nối và mở lịch UTH**.
 6. Tab **https://portal.ut.edu.vn/calendar** mở ra. Sinh viên tự đăng nhập vào trường và mở mục Lịch học nếu bị chuyển về trang chủ.
-7. Trong bảng **Lịch Học · UTH** ở góc dưới bên phải, bấm **Đọc lịch tuần**. Mở rộng cửa sổ máy tính để nhìn đủ thứ hai đến chủ nhật.
-8. Đối chiếu tên môn, ngày, giờ, phòng và tên tài khoản nhận. Bấm **Gửi về Lịch Học**.
-9. Quay lại tab Lịch Học. Trang tự kiểm tra trạng thái sau mỗi 4 giây khi đang được xem; có nút **Kiểm tra lại** và **Xem tuần vừa nhập**.
+7. Trong bảng **Neon · UTH** ở góc dưới bên phải, bấm **Đọc lịch tuần**. Mở rộng cửa sổ máy tính để nhìn đủ thứ hai đến chủ nhật.
+8. Đối chiếu tên môn, ngày, giờ, phòng và tên tài khoản nhận. Bấm **Gửi về Neon**.
+9. Quay lại tab Neon. Trang tự kiểm tra trạng thái sau mỗi 4 giây khi đang được xem; có nút **Kiểm tra lại** và **Xem tuần vừa nhập**.
 
 Tiện ích và web phải ở cùng trình duyệt/profile. Máy chủ local phải đang chạy. Demo hỗ trợ chính xác hai origin `http://localhost:3000` và `http://127.0.0.1:3000`. Nếu không tìm thấy tiện ích, tải lại trang sau khi cài.
 
@@ -21,7 +21,7 @@ Tiện ích và web phải ở cùng trình duyệt/profile. Máy chủ local ph
 - Chọn trường từ danh mục do máy chủ cấp. UTH hoạt động trong luồng demo; tùy chọn **Trường khác · sắp hỗ trợ** có thông báo và đường dẫn nhập tay.
 - Mở cổng/trang lịch theo cấu hình trường, không nhận URL chuyển hướng tùy ý từ trang ngoài.
 - Tạo vé đồng bộ ngẫu nhiên 256 bit, có hiệu lực 10 phút và chỉ dùng một lần. Máy chủ chỉ lưu hash của vé.
-- Vé gắn với người dùng và phiên đăng nhập Lịch Học. Hủy phiên, kết nối lại hoặc đăng xuất làm vé cũ mất hiệu lực.
+- Vé gắn với người dùng và phiên đăng nhập Neon. Hủy phiên, kết nối lại hoặc đăng xuất làm vé cũ mất hiệu lực.
 - Tiện ích ghép vé với đúng tab UTH vừa được mở, giữ vé trong storage.session, không đưa vé cho trang UTH.
 - Chỉ đọc văn bản và vị trí các cột ngày/thẻ môn trên trang lịch. Không đọc cookie, mật khẩu, token đăng nhập trường; không tự thực hiện đăng nhập.
 - Hiển thị bản xem trước. Trước khi gửi, đọc lại và từ chối nếu lịch đã đổi kể từ bản xem trước.
@@ -39,7 +39,7 @@ Tiện ích và web phải ở cùng trình duyệt/profile. Máy chủ local ph
 - Yêu cầu nhận diện đủ 7 ngày liên tiếp. Không đoán giờ từ số tiết. Nếu thiếu ngày, không đọc được giờ hoặc vị trí cột mơ hồ, tiện ích báo lỗi.
 - Tuần không có thẻ môn sẽ không được gửi từ tiện ích demo để tránh xóa lịch do giao diện chưa tải xong. Nếu trường hủy toàn bộ buổi của một tuần, hiện cần xóa các mục đó bằng giao diện quản lý.
 - Lịch UTH người dùng sửa trong web vẫn mang nguồn UTH; lần đồng bộ lại tuần đó sẽ cập nhật theo trường. Lịch nhập tay độc lập không bị thay thế.
-- Không kiểm tra được sinh viên đang đăng nhập UTH có phải chủ tài khoản Lịch Học hay không. Người dùng cần đối chiếu trước khi gửi; tiện ích chỉ đọc tab được mở trong lần kết nối đó.
+- Không kiểm tra được sinh viên đang đăng nhập UTH có phải chủ tài khoản Neon hay không. Người dùng cần đối chiếu trước khi gửi; tiện ích chỉ đọc tab được mở trong lần kết nối đó.
 - Chỉ giữ một kết nối đang chờ trong tiện ích demo. Bắt đầu kết nối tài khoản khác sẽ thay kết nối hiện tại.
 
 ## Thêm trường và đưa lên Internet

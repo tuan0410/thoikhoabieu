@@ -60,7 +60,8 @@ a { color: inherit; }
   transition: transform .22s ease;
 }
 .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
-.brand-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
+.brand-mark { width: 44px; height: 44px; border-radius: 11px; object-fit: cover; flex-shrink: 0; }
+.auth-logo { display: block; border-radius: 20px; margin-bottom: 18px; object-fit: cover; }
 .brand-name { font-family: var(--font-display); font-weight: 700; font-size: 19px; line-height: 1.1; }
 .brand-sub { font-size: 12px; color: var(--muted); }
 .nav { display: flex; flex-direction: column; gap: 2px; }

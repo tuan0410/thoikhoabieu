@@ -161,7 +161,7 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
           const ticketHash = hash(token[1]);
           const ticket = await db.prepare('SELECT sync_tickets.* FROM sync_tickets JOIN sessions ON sessions.token=sync_tickets.session_token WHERE sync_tickets.token=? AND sync_tickets.expires>? AND sessions.expires>?')
             .get(ticketHash, Date.now(), Date.now());
-          if (!ticket) fail(401, 'Phiên đồng bộ đã hết hạn hoặc đã sử dụng. Hãy kết nối lại từ Lịch Học.');
+          if (!ticket) fail(401, 'Phiên đồng bộ đã hết hạn hoặc đã sử dụng. Hãy kết nối lại từ Neon.');
           if (ticket.school_id !== importRoute[1]) fail(403, 'Phiên đồng bộ không thuộc trường này.');
           const snapshot = await body(req);
           // Recheck after reading the body so two concurrent submissions cannot reuse a ticket.
@@ -322,6 +322,6 @@ function createApp({ dbPath = process.env.DB_PATH || path.join(ROOT, 'data', 'li
 }
 if (require.main === module) {
   const port = Number(process.env.PORT || 3000);
-  createApp().listen(port, process.env.HOST || '127.0.0.1', () => console.log(`Lịch Học: http://localhost:${port}`));
+  createApp().listen(port, process.env.HOST || '127.0.0.1', () => console.log(`Neon: http://localhost:${port}`));
 }
 module.exports = { createApp, cleanData, emptyData };

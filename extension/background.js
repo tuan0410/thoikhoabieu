@@ -27,7 +27,7 @@ async function handle(message, sender) {
   const { connection } = await chrome.storage.session.get('connection');
   const provider = Object.hasOwn(PROVIDERS, connection?.schoolId) ? PROVIDERS[connection.schoolId] : null;
   if (!provider || source.origin !== provider.origin) throw new Error('Trang không được hỗ trợ.');
-  if (connection.expires <= Date.now() || connection.portalTabId !== sender.tab?.id) throw new Error('Hãy quay lại web Lịch Học và kết nối đúng trường để bắt đầu.');
+  if (connection.expires <= Date.now() || connection.portalTabId !== sender.tab?.id) throw new Error('Hãy quay lại web Neon và kết nối đúng trường để bắt đầu.');
   if (message.type === 'CONNECTION') return { userName: connection.userName, origin: connection.origin, expires: connection.expires };
   const examImport = message.payload?.mode === 'exams';
   const allowedImport = examImport ? provider.exams?.test(source.pathname) : provider.schedule.test(source.pathname);

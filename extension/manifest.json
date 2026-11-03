@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Lịch Học · UTH & FPT Quy Nhơn (Demo)",
-  "version": "0.4.3",
-  "description": "Đọc lịch tuần UTH hoặc FAP FPT Quy Nhơn và gửi bản xem trước về tài khoản Lịch Học.",
+  "name": "Neon · UTH & FPT Quy Nhơn (Demo)",
+  "version": "0.4.4",
+  "description": "Đọc lịch tuần UTH hoặc FAP FPT Quy Nhơn và gửi bản xem trước về tài khoản Neon.",
   "minimum_chrome_version": "102",
   "permissions": ["storage"],
   "host_permissions": ["http://localhost:3000/*", "http://127.0.0.1:3000/*", "https://schedule-information.vercel.app/*", "https://portal.ut.edu.vn/*", "https://fap.fpt.edu.vn/*"],

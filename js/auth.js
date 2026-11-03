@@ -4,7 +4,7 @@
   LH.auth = {
     paint: function () {
       var register = mode === 'register';
-      document.getElementById('authTitle').textContent = register ? 'Tạo tài khoản của bạn' : 'Đăng nhập Lịch Học';
+      document.getElementById('authTitle').textContent = register ? 'Tạo tài khoản của bạn' : 'Đăng nhập Neon';
       document.getElementById('authNameField').hidden = !register;
       document.getElementById('authName').required = register;
       document.getElementById('authPassword').autocomplete = register ? 'new-password' : 'current-password';

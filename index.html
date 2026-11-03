@@ -3,32 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lịch Học</title>
-<meta name="theme-color" content="#2E49D0">
+<title>Neon</title>
+<meta name="theme-color" content="#6C4AFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Lịch Học">
+<meta name="apple-mobile-web-app-title" content="Neon">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" type="image/png" href="/icons/icon-192.png">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/icons/icon-192.png?v=neon1">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=neon1">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
 
 </head>
 <body>
-<noscript><p>Vui lòng bật JavaScript để sử dụng Lịch Học.</p></noscript>
+<noscript><p>Vui lòng bật JavaScript để sử dụng Neon.</p></noscript>
 <a class="install-btn chip" href="/download.html" id="installBtn">Cài ứng dụng</a>
 <dialog class="install-dialog" id="installDialog" aria-labelledby="installTitle">
-  <h2 id="installTitle">Cài Lịch Học lên điện thoại</h2>
+  <h2 id="installTitle">Cài Neon lên điện thoại</h2>
   <p id="installHelp"></p>
-  <p class="muted">Sau khi cài, mở Lịch Học từ biểu tượng trên màn hình chính. Cần kết nối máy chủ để dùng dữ liệu tài khoản.</p>
+  <p class="muted">Sau khi cài, mở Neon từ biểu tượng trên màn hình chính. Cần kết nối máy chủ để dùng dữ liệu tài khoản.</p>
   <button class="btn" type="button" id="closeInstallDialog">Đã hiểu</button>
 </dialog>
 
 <section class="auth-screen" id="authScreen">
   <div class="card auth-card">
     <span class="eyebrow">Lịch học của riêng bạn</span>
-    <h1 id="authTitle">Đăng nhập Lịch Học</h1>
+    <img class="auth-logo" src="/icons/icon-192.png?v=neon1" width="80" height="80" alt="Logo Neon">
+    <h1 id="authTitle">Đăng nhập Neon</h1>
     <p class="muted">Quản lý môn học, thời khóa biểu, bài tập và lịch kiểm tra trong một tài khoản.</p>
     <form id="authForm" class="auth-form">
       <div class="field" id="authNameField" hidden><label for="authName">Tên của bạn</label><input id="authName" autocomplete="name" maxlength="80"></div>
@@ -43,8 +44,8 @@
 <div id="appShell" hidden>
 <aside class="sidebar" id="sidebar" aria-label="Điều hướng">
   <div class="brand">
-    <div class="brand-mark" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
-    <div><div class="brand-name">Lịch Học</div><div class="brand-sub" id="semesterName">Lịch cá nhân</div></div>
+    <img class="brand-mark" src="/icons/icon-192.png?v=neon1" alt="">
+    <div><div class="brand-name">Neon</div><div class="brand-sub" id="semesterName">Lịch cá nhân</div></div>
   </div>
   <nav class="nav" id="nav">
     <div class="nav-label">Trang</div>
@@ -66,10 +67,10 @@
   <main class="content" id="view"></main>
   <footer class="footer">
     <div class="footer-in">
-      <div><b>Lịch Học</b>Lịch học, bài tập và lịch kiểm tra do bạn quản lý, lưu riêng theo tài khoản. Thêm hoặc chỉnh sửa thông tin trong mục Quản lý lịch cá nhân.</div>
+      <div><b>Neon</b>Lịch học, bài tập và lịch kiểm tra do bạn quản lý, lưu riêng theo tài khoản. Thêm hoặc chỉnh sửa thông tin trong mục Quản lý lịch cá nhân.</div>
       <div><b>Trang</b><a href="#tong-quan" data-go="tong-quan">Tổng quan</a><a href="#thoi-khoa-bieu" data-go="thoi-khoa-bieu">Thời khóa biểu</a><a href="#mon-hoc" data-go="mon-hoc">Môn học</a></div>
       <div><b>Học vụ</b><a href="#bai-tap" data-go="bai-tap">Bài tập và deadline</a><a href="#lich-thi" data-go="lich-thi">Lịch kiểm tra và thi</a></div>
-      <div class="copy"><span>© 2026 Lịch Học</span><span>Giờ học tính theo múi giờ của thiết bị</span></div>
+      <div class="copy"><span>© 2026 Neon</span><span>Giờ học tính theo múi giờ của thiết bị</span></div>
     </div>
   </footer>
 </div>

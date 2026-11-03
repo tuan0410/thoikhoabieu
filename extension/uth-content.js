@@ -18,11 +18,11 @@
     const el = document.createElement(tag); if (text) el.textContent = text; if (className) el.className = className; return el;
   };
   const panel = create('section', '', 'panel');
-  const header = create('header'); header.appendChild(create('h2', 'Lịch Học · ' + label));
+  const header = create('header'); header.appendChild(create('h2', 'Neon · ' + label));
   const toggle = create('button', 'Thu gọn'); toggle.type = 'button'; header.appendChild(toggle);
   const body = create('div', '', 'body');
   body.appendChild(create('p', onExam() ? 'Đọc lịch thi đang hiển thị rồi kiểm tra bản xem trước. Nếu có nhiều trang hoặc bộ lọc, cần đọc từng phần; không tự xóa lịch cũ.' : fpt ? 'Chọn cơ sở FU–Quy Nhơn trên FAP, tự đăng nhập rồi mở Weekly timetable. Có thể chuyển sang lịch thi bằng liên kết bên dưới.' : 'Mở mục Lịch học trên UTH rồi đọc tuần đang hiển thị. Bạn sẽ xem trước trước khi gửi.'));
-  const status = create('p', 'Hãy kết nối ' + label + ' từ web Lịch Học.', 'muted');
+  const status = create('p', 'Hãy kết nối ' + label + ' từ web Neon.', 'muted');
   const target = create('p', '', 'muted');
   const actions = create('div', '', 'actions');
   const scan = create('button', onExam() ? 'Đọc lịch thi' : 'Đọc lịch tuần'); scan.type = 'button';
@@ -33,10 +33,10 @@
   const startLabel = create('label', 'Thứ hai đầu kỳ '), startDate = create('input'); startDate.type = 'date'; startLabel.appendChild(startDate);
   const endLabel = create('label', 'Chủ nhật cuối kỳ '), endDate = create('input'); endDate.type = 'date'; endLabel.appendChild(endDate);
   range.append(startLabel, create('br'), endLabel, create('p', 'Chọn khoảng học kỳ rồi bấm Đọc cả học kỳ. Chỉ gửi sau khi tải đủ tất cả tuần.', 'muted'));
-  const send = create('button', 'Gửi về Lịch Học', 'primary'); send.type = 'button'; send.disabled = true;
+  const send = create('button', 'Gửi về Neon', 'primary'); send.type = 'button'; send.disabled = true;
   const preview = create('ul');
   const scope = create('p', '', 'muted');
-  const back = create('a', 'Quay lại web Lịch Học'); back.hidden = true; back.target = '_blank'; back.rel = 'noopener noreferrer';
+  const back = create('a', 'Quay lại web Neon'); back.hidden = true; back.target = '_blank'; back.rel = 'noopener noreferrer';
   actions.append(scan); if (fpt) actions.append(semester, cancelRead); actions.append(send);
   body.append(status, target, range, actions, scope, preview, back);
   if (fpt) {
@@ -87,7 +87,7 @@
         preview.appendChild(create('li', 'Tuần ' + week.days[0] + ': ' + week.events.length + ' buổi'));
         for (const row of week.events) preview.appendChild(create('li', row.day + ' · ' + row.start + '–' + row.end + ' · ' + row.name + ' · ' + row.room));
       }
-      message('Đã đọc đủ học kỳ. Kiểm tra bản xem trước rồi bấm Gửi về Lịch Học.');
+      message('Đã đọc đủ học kỳ. Kiểm tra bản xem trước rồi bấm Gửi về Neon.');
       send.disabled = false;
     } catch (error) { snapshot = null; message(error.message, true); }
     finally { scan.disabled = false; semester.disabled = false; cancelRead.hidden = true; readController = null; }
@@ -103,7 +103,7 @@
       if (snapshot.mode === 'exams') {
         scope.textContent = 'Thêm/cập nhật ' + snapshot.exams.length + ' lịch thi FPT đang hiển thị. Giữ lịch thi nhập tay, lịch học và các lịch thi không có trong bản nhập. Nếu trang có phân trang/bộ lọc, chỉ đọc phần đang hiển thị.';
         for (const row of snapshot.exams) preview.appendChild(create('li', row.code + ' · ' + row.day + ' · ' + row.time + ' · ' + row.dur + ' phút · ' + (row.room || 'Chưa có phòng') + ' · ' + row.form));
-        message('Đã đọc lịch thi. Kiểm tra bản xem trước rồi bấm Gửi về Lịch Học.');
+        message('Đã đọc lịch thi. Kiểm tra bản xem trước rồi bấm Gửi về Neon.');
         send.disabled = false;
         return;
       }
@@ -123,10 +123,10 @@
         if (JSON.stringify(current) !== JSON.stringify(snapshot)) throw new Error('Lịch vừa thay đổi. Hãy bấm Đọc lịch tuần và kiểm tra lại bản xem trước.');
       }
       const result = await ask('IMPORT', snapshot);
-      message('Đã gửi ' + result.summary.count + (snapshot.mode === 'exams' ? ' lịch thi' : ' buổi học') + ' về tài khoản Lịch Học.');
+      message('Đã gửi ' + result.summary.count + (snapshot.mode === 'exams' ? ' lịch thi' : ' buổi học') + ' về tài khoản Neon.');
       back.href = connection.origin + (snapshot.mode === 'exams' ? '/#lich-thi' : '/#dong-bo'); back.hidden = false;
       snapshot = null;
-    } catch (error) { message(error.message || 'Không kết nối được máy chủ Lịch Học. Hãy kiểm tra máy chủ đang chạy.', true); }
+    } catch (error) { message(error.message || 'Không kết nối được máy chủ Neon. Hãy kiểm tra máy chủ đang chạy.', true); }
     finally { scan.disabled = false; semester.disabled = false; }
   });
 })();

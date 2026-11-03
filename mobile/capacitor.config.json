@@ -1,5 +1,5 @@
 {
-  "appId": "com.tuan0410.lichhoc", "appName": "Lịch Học", "webDir": "www",
+  "appId": "com.tuan0410.lichhoc", "appName": "Neon", "webDir": "www",
   "loggingBehavior": "none", "server": { "androidScheme": "https" },
   "android": { "allowMixedContent": false },
   "plugins": { "CapacitorHttp": { "enabled": false } }

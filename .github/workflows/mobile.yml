@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['mobile/**', 'js/**', 'extension/**', 'index.html', 'style.css', 'scripts/build-mobile.cjs', 'scripts/build-vercel.cjs', 'scripts/ios-*.py', 'scripts/make_icons.py', '.github/workflows/mobile.yml']
+    paths: ['mobile/**', 'js/**', 'extension/**', 'icons/**', 'brand/**', 'index.html', 'style.css', 'scripts/build-mobile.cjs', 'scripts/mobile-platform-assets.cjs', 'scripts/build-vercel.cjs', 'scripts/ios-*.py', 'scripts/make_icons.py', '.github/workflows/mobile.yml']
 permissions:
   contents: read
 concurrency:
@@ -43,9 +43,9 @@ jobs:
           cp mobile/android/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/lichhoc-android.apk"
           printf 'Android preview build from commit %s.\n\nSchool login and synchronization still require testing on a real device.\n' "$GITHUB_SHA" > "$RUNNER_TEMP/android-preview-notes.md"
           if gh release view android-preview --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release edit android-preview --repo "$GITHUB_REPOSITORY" --notes-file "$RUNNER_TEMP/android-preview-notes.md"
+            gh release edit android-preview --repo "$GITHUB_REPOSITORY" --title 'Neon Android Preview' --notes-file "$RUNNER_TEMP/android-preview-notes.md"
           else
-            gh release create android-preview --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Lich Hoc Android Preview' --notes-file "$RUNNER_TEMP/android-preview-notes.md" --prerelease --latest=false
+            gh release create android-preview --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Neon Android Preview' --notes-file "$RUNNER_TEMP/android-preview-notes.md" --prerelease --latest=false
           fi
           gh release upload android-preview "$RUNNER_TEMP/lichhoc-android.apk" --repo "$GITHUB_REPOSITORY" --clobber
   ios:

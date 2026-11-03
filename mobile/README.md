@@ -1,4 +1,6 @@
-# Lịch Học trên Android và iPhone
+# Neon trên Android và iPhone
+
+Logo nguồn nằm trong `brand/neon-logo.png`. Các kích thước PNG đã xuất được lưu ở `icons`; `scripts/export-icons.ps1` là công cụ xuất lại trên Windows. Sau `cap add/sync`, `scripts/mobile-platform-assets.cjs` đặt icon Android/iPhone và tên Neon vào project native. Bundle ID vẫn là `com.tuan0410.lichhoc` để các bản cài tiếp tục thuộc cùng ứng dụng. `scripts/make_icons.py` hiện kiểm tra các PNG có sẵn, không vẽ lại logo cũ.
 
 Mã app Capacitor dùng lại giao diện web, gọi backend HTTPS trên Vercel và dùng chung tài khoản/Turso. Không cần cài tiện ích trình duyệt trong bản native. Đây là mã triển khai để build và kiểm chứng, chưa phải bản đã phát hành trên App Store/Google Play.
 
@@ -6,7 +8,7 @@ Mã app Capacitor dùng lại giao diện web, gọi backend HTTPS trên Vercel 
 
 Trên web, nút **Cài ứng dụng** mở `/download.html`. Android tải trực tiếp `lichhoc-android.apk` từ release thử nghiệm `android-preview`, không yêu cầu GitHub login hoặc giải nén artifact. Workflow Android cập nhật file này sau khi build thành công trên `main`. iPhone hiện chưa có link TestFlight công khai; khi phát hành, cập nhật mục iPhone trong `download.html` bằng link TestFlight thật. Chức năng cài PWA có nút riêng trên trang tải.
 
-1. Cài app native, đăng nhập tài khoản Lịch Học.
+1. Cài app native, đăng nhập tài khoản Neon.
 2. Mở Đồng bộ, chọn trường và phạm vi. FPT có tuần, cả kỳ và lịch thi; UTH hiện có tuần đang mở.
 3. Bấm Kết nối và mở lịch. App mở một WebView cổng trường riêng; sinh viên tự chọn cơ sở/đăng nhập.
 4. Mở lịch, bấm **Đọc lịch** trên thanh điều khiển native. FPT đọc cả kỳ sẽ lần lượt gọi các tuần và chấp nhận tuần đã xác nhận trống.
@@ -48,7 +50,7 @@ Workflow **Mobile build checks** tạo Android debug APK và build iOS Simulator
 - Web/PWA không có quyền đọc tab cổng trường. Người dùng điện thoại cần bản native để dùng bộ đọc tích hợp. Cài PWA từ trình duyệt không biến nó thành bản native.
 - Đăng nhập FAP/UTH trong WebView **chưa kiểm chứng trên tài khoản thật**. Google không cho OAuth trong embedded user-agent theo [chính sách](https://developers.google.com/identity/protocols/oauth2/policies). Nếu trường bắt buộc luồng này và chặn app, không giả user-agent, lấy cookie từ trình duyệt ngoài hoặc vượt chặn. Cần API/luồng được trường cho phép trước khi có thể hoàn tất kết nối đó. Mở trình duyệt ngoài không tự chuyển phiên về WebView.
 - Cổng trường không có Capacitor bridge/JavaScriptInterface. Chỉ inject bộ đọc sau khi bấm nút native ở đúng HTTPS host và đường dẫn lịch. Trang đăng nhập và host ngoài allowlist không được đọc. Cookie cổng trường ở thiết bị, không đưa lên API.
-- API Lịch Học dùng CapacitorHttp native cookie jar và Origin cố định `https://schedule-information.vercel.app`; không mở CORS toàn cục và không lưu session token trong localStorage. Cần thử đăng nhập/khởi động lại/đăng xuất trên cả hai hệ điều hành.
+- API Neon dùng CapacitorHttp native cookie jar và Origin cố định `https://schedule-information.vercel.app`; không mở CORS toàn cục và không lưu session token trong localStorage. Cần thử đăng nhập/khởi động lại/đăng xuất trên cả hai hệ điều hành.
 - Snapshot được lưu qua `/api/sync/mobile/import`, kiểm tra phiên đăng nhập, Origin, schema và giao dịch database. Dữ liệu được lưu riêng theo tài khoản. Bản xem trước bị loại nếu đổi tài khoản. Cookie/mật khẩu trường không thuộc payload.
 - Chỉ đọc khi người dùng thao tác, chưa có đồng bộ nền. UTH chưa đọc cả kỳ. Lịch thi FPT chỉ đọc bảng đang hiển thị, không tự phân trang.
 

@@ -73,13 +73,13 @@ Vào **Actions → Build signed iPhone app → Run workflow → main**:
 - Chưa chọn upload: tạo artifact `lichhoc-iphone-appstore` để kiểm tra xuất IPA. IPA loại App Store không cài trực tiếp bằng cách bấm file trên iPhone.
 - Chọn **Upload the signed app…**: build, ký rồi upload lên App Store Connect. Không tự phát hành công khai trên App Store hoặc tự mời người khác.
 
-Sau khi Apple xử lý xong, vào App Store Connect → app → **TestFlight**. Hoàn thành thông tin beta/export compliance mà Apple yêu cầu, chọn build và cấu hình nhóm thử nghiệm. Thử nghiệm ngoài nhóm nội bộ có thể cần Beta App Review. Cài ứng dụng **TestFlight** của Apple trên iPhone, nhận lời mời/link hợp lệ rồi cài Lịch Học từ đó.
+Sau khi Apple xử lý xong, vào App Store Connect → app → **TestFlight**. Hoàn thành thông tin beta/export compliance mà Apple yêu cầu, chọn build và cấu hình nhóm thử nghiệm. Thử nghiệm ngoài nhóm nội bộ có thể cần Beta App Review. Cài ứng dụng **TestFlight** của Apple trên iPhone, nhận lời mời/link hợp lệ rồi cài Neon từ đó.
 
 Build number lấy từ số lần chạy workflow. Nếu build đã upload thành công, chạy workflow mới cho lần tiếp theo thay vì upload lại cùng build number. Không thu hồi certificate sau mỗi lần chạy: workflow chỉ xóa bản sao tạm trên runner.
 
 ## 6. Kiểm tra tính năng thực tế
 
-Đăng nhập Lịch Học → Đồng bộ → chọn FPT/UTH → mở cổng trường → tự đăng nhập → mở lịch → Đọc lịch → xem trước → Lưu vào tài khoản. Mở web bằng cùng tài khoản để kiểm tra lịch đã lưu.
+Đăng nhập Neon → Đồng bộ → chọn FPT/UTH → mở cổng trường → tự đăng nhập → mở lịch → Đọc lịch → xem trước → Lưu vào tài khoản. Mở web bằng cùng tài khoản để kiểm tra lịch đã lưu.
 
 Đăng nhập trường trong WebView vẫn cần kiểm chứng. Nếu FAP bắt buộc Google OAuth và Google chặn trình duyệt nhúng, ký/TestFlight không tự giải quyết được hạn chế đó. Cần API hoặc luồng được trường hỗ trợ; app không giả đăng nhập hoặc tự vượt chặn. Không quảng bá đã đồng bộ thành công trước khi thử tài khoản thật trên cả Android/iPhone.
 
